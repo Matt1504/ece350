@@ -39,6 +39,8 @@
 #include "rtx.h"
 #include "Serial.h"
 #include "printf.h"
+#include <stdbool.h>
+
 
 
 /**
@@ -68,6 +70,62 @@ void task2(void)
     /* terminating */
     tsk_exit();
 }
+
+// user tasks for test case 1
+void task_create(void)
+{
+	SER_PutStr("Entering Task_Create Task\r\n");
+	task_t tid;
+	RTX_TASK_INFO task_info[10];
+	// create a simple task a bunch of tasks that basically just terminate
+	for (int i = 0; i < 5; i++) {
+		// create 10 tasks that will get just terminate when they run
+		SER_PutStr("creating sub user-task\r\n");
+		tsk_create(&tid, &task_terminate, MEDIUM, 0x200);
+		printf("tid: %d\r\n", tid);
+		tsk_get(tid, &task_info[i]);
+	}
+	// after creating all the tests, you can exit this task to run the terminate tasks as well
+	SER_PutStr("Before tsk_exit in task_create\r\n");
+	tsk_exit();
+
+}
+
+void task_terminate(void)
+{
+	SER_PutStr("task created...\r\n");
+	// allocate your data
+	void *p;
+	SER_PutStr("allocating 8 bytes...\r\n");
+	p = mem_alloc(8);
+
+	// deallocate your data
+	SER_PutStr("deallocating 8 bytes...\r\n");
+	if (mem_dealloc(p) != 0) {
+		SER_PutStr("deallocation failed!");
+	}
+	// exit
+	SER_PutStr("task exiting...\r\n");
+	tsk_exit();
+}
+
+// user tasks for test case 2
+void task_low_prio(void)
+{
+	SER_PutStr("low prio task running...\r\n");
+	tsk_exit();
+}
+void task_medium_prio(void)
+{
+	SER_PutStr("medium prio task running...\r\n");
+	tsk_exit();
+}
+void task_high_prio(void)
+{
+	SER_PutStr("high prio task running...\r\n");
+	tsk_exit();
+}
+
 /*
  *===========================================================================
  *                             END OF FILE
