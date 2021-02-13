@@ -39,6 +39,8 @@
 #include "rtx.h"
 #include "Serial.h"
 #include "printf.h"
+#include <stdbool.h>
+
 
 
 /**
@@ -96,6 +98,7 @@ void task_terminate(void)
 	void *p;
 	SER_PutStr("allocating 8 bytes...\r\n");
 	p = mem_alloc(8);
+
 	// deallocate your data
 	SER_PutStr("deallocating 8 bytes...\r\n");
 	if (mem_dealloc(p) != 0) {
@@ -122,16 +125,6 @@ void task_high_prio(void)
 	SER_PutStr("high prio task running...\r\n");
 	tsk_exit();
 }
-
-// user task for test case 3
-//void task_dealloc((void*)p)
-//{
-//	SER_PutStr("Dealloc Task Running...\r\n");
-//	if (mem_dealloc(p) == -1) {
-//		SER_PutStr("Task unable to deallocate memory it doesn't own...\r\n");
-//	}
-//	tsk_exit();
-//}
 
 /*
  *===========================================================================

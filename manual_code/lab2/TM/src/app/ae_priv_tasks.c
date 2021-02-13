@@ -47,6 +47,7 @@
  * @brief       a task that prints AAAAA, BBBBB, CCCCC,...., ZZZZZ on each line.
  *              It yields the cpu every 6 lines are printed.
  *****************************************************************************/
+void *p;
 
 void priv_task1(void)
 {
@@ -188,14 +189,24 @@ void priv_task_test1(void)
 	// create a task that will try to deallocate said memory
 	// is supposed to fail because that task does not own the memory
 
-	void *p = k_mem_alloc(8);
+	p = k_mem_alloc(8);
 	// create task with high priority to preeumpt
-//	k_tsk_create(&tid, &task_dealloc, HIGH);
+	k_tsk_create(&tid, &task_dealloc, HIGH, 0x200);
 	// task return to running state
 	// finished all tasks
 	for (int i = 0;; i++) {
 		// run infinite loop now
 	}
+}
+
+// user task for test case 3
+void task_dealloc(void)
+{
+	SER_PutStr("Dealloc Task Running...\r\n");
+	if (mem_dealloc(p) == -1) {
+		SER_PutStr("Task unable to deallocate memory it doesn't own...\r\n");
+	}
+	tsk_exit();
 }
 
 /*

@@ -59,6 +59,7 @@ extern void task1(void);
 void priv_task1     (void);
 void priv_task2     (void);
 void priv_task_test1(void);
+void task_dealloc	(void);
 
 #endif // ! PRIV_TASKS_H_
 /*

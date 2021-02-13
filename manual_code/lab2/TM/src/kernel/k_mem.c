@@ -68,8 +68,6 @@ U32 g_k_stacks[MAX_TASKS][KERN_STACK_SIZE >> 2] __attribute__((aligned(8)));
 //process stack for tasks in SYS mode
 U32 g_p_stacks[MAX_TASKS][PROC_STACK_SIZE >> 2] __attribute__((aligned(8)));
 
-task_t tid_calling;
-
 extern TCB *gp_current_task;
 
 /*
@@ -88,10 +86,7 @@ U32* k_alloc_p_stack(task_t tid)
     return g_p_stacks[tid+1];
 }
 
-U32* k_alloc_u_stack(task_t tid, size_t size) {
-	tid_calling = tid;
-	return k_mem_alloc(size);
-}
+
 
 typedef struct {
     int size;
@@ -106,6 +101,13 @@ struct node_t {
     int padding;
     task_t owner_id;
 }* node_head = NULL;
+
+void* k_alloc_u_stack(task_t tid, size_t size) {
+	void *ptr = k_mem_alloc(size);
+	struct node_t *p = (struct node_t*)ptr-1;
+	p-> owner_id = tid;
+	return ++p;
+}
 
 int k_mem_init(void) {
     // initializes the RTX's memory manager
@@ -139,7 +141,7 @@ int k_mem_init(void) {
     head -> prev = NULL;
     head -> allocated = false;
     head -> padding = 0;
-    head -> owner_id = TID_NULL;
+//    head -> owner_id = TID_NULL;
     node_head = head;
     return RTX_OK;
 }
@@ -179,13 +181,13 @@ void* k_mem_alloc(size_t size) {
     n-> allocated = false;
     n-> prev = p;
     n-> padding = 0;
-    n-> owner_id = p-> owner_id;
 
+    p-> owner_id = gp_current_task-> tid;
     p-> size = size;
     p-> next = n;
     p-> allocated = true;
     p-> padding = padding;
-    p-> owner_id = tid_calling;
+
     // increment the pointer such that the return value will be pointing directly to the memory region instead of the header of the node
     return ++p;
 }
@@ -206,6 +208,7 @@ int k_mem_dealloc(void *ptr) {
         // if allocated is false that means that ptr was not returned by a previous mem_alloc() call or has already been previously called by mem_dealloc()
         return RTX_ERR;
     }
+    TCB* tcb = gp_current_task;
     // can only deallocate if the input memory is owned by the calling task (running task)
     if (p-> owner_id != gp_current_task->tid) {
         return RTX_ERR;

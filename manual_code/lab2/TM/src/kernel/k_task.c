@@ -357,7 +357,7 @@ int k_tsk_create_new(RTX_TASK_INFO *p_taskinfo, TCB *p_tcb, task_t tid)
         //*** allocate user stack from the user space, not implemented yet ***//
         //********************************************************************//
 
-        U32 tmp = (U32) k_alloc_u_stack(tid, p_tcb-> u_stack_size);
+        U32 tmp = (U32) k_alloc_u_stack(tid, (size_t)p_tcb-> u_stack_size);
         *(--sp) = tmp;
         p_tcb->u_stack_hi = tmp;
         p_tcb->u_sp = tmp;
@@ -573,9 +573,6 @@ void k_tsk_exit(void)
       // reduce the number of active tasks
       g_num_active_tasks--;
       // actually should run a modified version of k_tsk_run_new() because k_tsk_run_new() will set this task to ready instead of dormant
-
-      // deallocating user stack
-      k_mem_dealloc((void *)gp_current_task-> u_stack_hi);
 
       // modified k_tsk_run_new()
       // grab the next priority task in the ready queue

@@ -54,7 +54,7 @@ int     k_mem_dealloc       (void *ptr);
 int     k_mem_count_extfrag (size_t size);
 U32    *k_alloc_k_stack     (task_t tid);
 U32    *k_alloc_p_stack     (task_t tid);
-U32    *k_alloc_u_stack     (task_t tid, size_t size);
+void   *k_alloc_u_stack     (task_t tid, size_t size);
 #endif // ! K_MEM_H_
 
 /*
