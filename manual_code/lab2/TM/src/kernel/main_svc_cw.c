@@ -85,7 +85,7 @@ int main()
     printf("mode = 0x%x\r\n", mode);
 
     // System and Task set up by auto testing software
-    if (ae_init(&sys_info, task_info, 2) != RTX_OK) {
+    if (ae_init(&sys_info, task_info, 1) != RTX_OK) {
     	printf("RTX INIT FAILED\r\n");
     	return RTX_ERR;
     }
@@ -93,7 +93,7 @@ int main()
     // start the RTX and built-in tasks
     if (mode == MODE_SVC) {
         gp_current_task = NULL;
-        k_rtx_init(task_info, 2);
+        k_rtx_init(task_info, 1);
     }
 
     task_null();

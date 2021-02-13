@@ -42,6 +42,11 @@
 
 void task1(void);
 void task2(void);
+void task_create(void);
+void task_terminate(void);
+void task_low_prio(void);
+void task_medium_prio(void);
+void task_high_prio(void);
 
 #endif // ! USR_TASK_H_
 

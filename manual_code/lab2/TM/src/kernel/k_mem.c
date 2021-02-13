@@ -68,6 +68,8 @@ U32 g_k_stacks[MAX_TASKS][KERN_STACK_SIZE >> 2] __attribute__((aligned(8)));
 //process stack for tasks in SYS mode
 U32 g_p_stacks[MAX_TASKS][PROC_STACK_SIZE >> 2] __attribute__((aligned(8)));
 
+task_t tid_calling;
+
 extern TCB *gp_current_task;
 
 /*
@@ -84,6 +86,11 @@ U32* k_alloc_k_stack(task_t tid)
 U32* k_alloc_p_stack(task_t tid)
 {
     return g_p_stacks[tid+1];
+}
+
+U32* k_alloc_u_stack(task_t tid, size_t size) {
+	tid_calling = tid;
+	return k_mem_alloc(size);
 }
 
 typedef struct {
@@ -109,17 +116,25 @@ int k_mem_init(void) {
     printf("k_mem_init: image ends at 0x%x\r\n", end_addr);
     printf("k_mem_init: RAM ends at 0x%x\r\n", RAM_END);
     //printf("diff: %d\r\n", RAM_END - end_addr);
-    //printf("size: %d\r\n", sizeof(node_t));
+    printf("size: %d\r\n", sizeof(struct node_t));
 #endif /* DEBUG_0 */
     // sanity check (first have to check if free space is zero
     if (RAM_END - end_addr <= 0) {
         return RTX_ERR;
     }
+
+    while(end_addr % 8) {
+    	end_addr++;
+    	printf("k_mem_init: image ends at 0x%x\r\n", end_addr);
+    }
+
     // the head of the linked list should point to the end_addr
     // the size of the head of the linked list will be the entire free memory since on init there will only be one large chunk
     // the linked list will be of a single node until we start allocating and splitting the chunk so the next node will be NULL
     struct node_t* head = (struct node_t*) end_addr;
+
     head -> size = (RAM_END - end_addr) - sizeof(struct node_t);
+    printf("Size of the initial user stack allocation: %d\r\n", head->size);
     head -> next = NULL;
     head -> prev = NULL;
     head -> allocated = false;
@@ -170,12 +185,9 @@ void* k_mem_alloc(size_t size) {
     p-> next = n;
     p-> allocated = true;
     p-> padding = padding;
-    p-> owner_id = gp_current_task-> tid;
+    p-> owner_id = tid_calling;
     // increment the pointer such that the return value will be pointing directly to the memory region instead of the header of the node
-    struct node_t *ret = ++p;
-    // now have the pointer that points to the user stack, so I can set my tcb->u_sp
-    gp_current_task->u_sp = (U32)&ret;
-    return ret;
+    return ++p;
 }
 
 int k_mem_dealloc(void *ptr) {

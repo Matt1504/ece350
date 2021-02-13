@@ -76,16 +76,11 @@ int ae_set_sys_info(RTX_SYS_INFO *sys_info) {
     /************* NOT USED in LAB2 ********************
     struct timeval_rt budget;
     struct timeval_rt period;
-
     budget.sec = 0;
     budget.usec = MIN_RTX_QTM * 10;
-
     period.sec = 0;
     period.usec = MIN_RTX_QTM * 100;
-
-
     sys_info->rtx_time_qtm = 10 * MIN_RTX_QTM;
-
     sys_info->server.b_n = budget;
     sys_info->server.p_n = period;
     ****************************************************/
@@ -107,11 +102,10 @@ void ae_set_task_info(RTX_TASK_INFO *tasks, int num_tasks) {
 
     for (int i = 0; i < num_tasks; i++ ) {
         tasks[i].u_stack_size = 0x0;
-        tasks[i].prio = HIGH;
+        tasks[i].prio = MEDIUM;
         tasks[i].priv = 1;
     }
-    tasks[0].ptask = &priv_task1;
-    tasks[1].ptask = &priv_task2;
+    tasks[0].ptask = &priv_task_test1;
 
     return;
 }
