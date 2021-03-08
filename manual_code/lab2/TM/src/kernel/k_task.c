@@ -169,7 +169,6 @@ void queue_add(TCB* t_block) {
         printf("OOPS, WE SHOULDN'T BE HERE");
       }
     }
-
   }
 }
 

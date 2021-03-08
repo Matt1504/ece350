@@ -58,18 +58,48 @@
  *===========================================================================
  */
 
+typedef struct msg {
+    // meta data for the kernel to navigate and monitor the ring buffer 
+    struct msg *next; 
+    task_t sender_id; 
+    void *body;  /* the actual message (header + data)*/ 
+} msg;
+
 /**
  * @brief TCB data structure definition to support two kernel tasks.
  * @note  You will need to add more fields to this structure.
  */
 typedef struct tcb {
-    struct tcb *next;   /**> next tcb, not used in this example         */
-    U32        *msp;    /**> msp of the task, TCB_MSP_OFFSET = 4        */
-    U8          tid;    /**> task id                                    */
-    U8          prio;   /**> Execution priority                         */
-    U8          state;  /**> task state                                 */
-    U8          priv;   /**> = 0 unprivileged, =1 privileged            */
+    struct tcb          *next;   /**> next tcb, not used in this example         */
+    U32                 *msp;    /**> msp of the task, TCB_MSP_OFFSET = 4        */
+    void                (*ptask)();         /**> task entry address                 */
+    U8                  prio;   /**> Execution priority                         */
+    U32                 k_sp;               /**> current kernel stack pointer       */
+    U8                  state;  /**> task state                                 */
+    U32                 k_stack_hi;         /**> kernel stack base (high addr.)     */
+    U8                  priv;   /**> = 0 unprivileged, =1 privileged            */
+    U32                 u_sp;               /**> current user stack pointer         */
+    U32                 u_stack_hi;         /**> user stack base addr. (high addr.) */
+    U16                 k_stack_size;       /**> kernel stack size in bytes         */
+    U16                 u_stack_size;       /**> user stack size in bytes           */
+    task_t              tid;                /**> task ID                            */
+    struct timeval_rt   tv_cpu;             /**> task execution cpu time            */
+    struct timeval_rt   tv_wall;            /**> task execution wall clock time     */
+    
+    //fields for mailbox 
+    void                *mb_buffer;         /* mailbox buffer */ 
+    void                *mb_buffer_end;     /* end of mailbox buffer */ 
+    U8                  mb_count;          /* number of messages in the mailbox */
+    U16                 mb_capacity;       /* size of the mailbox */ 
+    struct msg          *mb_head;           /* pointer to head of mailbox */ 
+    struct msg          *mb_tail;           /* pointer to tial of mailbox */
+
+    /* The following only applies to real-time tasks */
+    struct timeval_rt   p_n;                /**> period in seconds and microseconds */
+    RTX_MSG_HDR        *msg_hdr;            /**> real-time task message header      */
+    U32                 num_msgs;           /**> real-time task mailbox capacity    */
 } TCB;
+
 
 /*
  *==========================================================================
