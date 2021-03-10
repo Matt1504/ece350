@@ -165,6 +165,7 @@ int k_recv_msg(task_t *sender_tid, void *buf, size_t len) {
     	// set the state to be blocked
     	gp_current_task-> state = BLK_MSG; 
     	k_tsk_run_new(); 
+    	return 0; 
     }
     // can fail if the buffer is too small to hold the message 
     struct *rtx_msg_hdr msg_head = (struct rtx_msg_hdr*) gp_current_task-> mb_tail-> body;
@@ -182,17 +183,11 @@ int k_recv_msg(task_t *sender_tid, void *buf, size_t len) {
     for (int i = 0; i < msg_head-> length) {
     	cdest[i] = csrc[i]; 
     }
+    // message received, the number of messages is now reduced
     --gp_current_task-> mb_count; 
 
     // move the tail pointer to the next message
     gp_current_task-> mb_tail = gp_current_task-> mb_tail-> next; 
-
-    // block if the mailbox is now empty 
-    if (gp_current_task-> mb_count == 0) {
-    	// set the state to be blocked
-    	gp_current_task-> state = BLK_MSG; 
-    	k_tsk_run_new(); 
-    }
     return 0;
 }
 

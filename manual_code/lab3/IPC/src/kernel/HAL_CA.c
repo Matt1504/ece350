@@ -240,8 +240,10 @@ void SER_Interrupt(void)
 	      SER_PutChar(1, c);	// display back
 
           size_t msg_hdr_size = sizeof(struct rtx_msg_hdr);
-          U8 *buf = buffer;
+          U8 *buf;
+
           struct rtx_msg_hdr *ptr = (void *)buf;
+          
           ptr->length = msg_hdr_size + sizeof(char);
           ptr->type = KEY_IN;
           buf += msg_hdr_size;

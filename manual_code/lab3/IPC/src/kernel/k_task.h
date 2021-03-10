@@ -52,6 +52,8 @@
  */
 
 extern TCB *gp_current_task;
+extern TCB g_tcbs[MAX_TASKS];
+extern void kcd_task(void);
 
 /*
  *===========================================================================

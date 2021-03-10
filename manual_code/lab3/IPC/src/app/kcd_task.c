@@ -1,5 +1,9 @@
 /* The KCD Task Template File */
 // hash table implementation from https://www.tutorialspoint.com/data_structures_algorithms/hash_table_program_in_c.htm
+#include "rtx.h"
+#include "Serial.h"
+#include "printf.h"
+
 #define SIZE 62 // all possible command characters
 extern TCB *gp_current_task;
 
@@ -20,8 +24,9 @@ void kcd_task(void)
     mbx_create(KCD_MBX_SIZE);
 
     while(1) {
-    	void *ptr;
-    	int res = recv_msg(TID_KCD, ptr, sizeof(struct rtx_msg_hdr)+sizeof(char));
+    	task_t *sender_tid = NULL; 
+    	void *ptr = mem_alloc(sizeof(struct rtx_msg_hdr)+sizeof(char));
+    	int res = recv_msg(sender_tid, ptr, sizeof(struct rtx_msg_hdr)+sizeof(char));
 
     	if (res == 0) {
 	    	struct rtx_msg_hdr *hdr = (struct rtx_msg_hdr) ptr;

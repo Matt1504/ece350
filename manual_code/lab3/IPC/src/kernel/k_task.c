@@ -245,7 +245,7 @@ int k_tsk_init(RTX_TASK_INFO *task_info, int num_tasks)
     RTX_TASK_INFO *p_taskinfo = &g_null_task_info;
     g_num_active_tasks = 0;
 
-    if (num_tasks > MAX_TASKS) {
+    if (num_tasks > MAX_TASKS - 1) {
       return RTX_ERR;
     }
 
@@ -276,32 +276,39 @@ int k_tsk_init(RTX_TASK_INFO *task_info, int num_tasks)
       p_tcb_d-> state = DORMANT;
     }
 
-    // create the rest of the tasks
+    // create the rest of the tasks    
     p_taskinfo = task_info;
-    for ( int i = 0; i < num_tasks; i++ ) {
-        TCB *p_tcb_new = &g_tcbs[i+1];
-        // set the priority of each tcb to be medium
-        p_tcb_new-> prio = MEDIUM;
-        p_tcb_new-> next = NULL;
-        p_tcb_new-> priv = 1;
-        p_tcb_new-> mb_count = 0; 
-        p_tcb_new-> mb_capacity = 0; 
-        p_tcb_new-> mb_buffer = NULL;
-        p_tcb_new-> mb_buffer_end = NULL;
-        p_tcb_new-> mb_head = NULL; 
-        p_tcb_new-> mb_tail = NULL; 
-        if (k_tsk_create_new(p_taskinfo, p_tcb_new, i+1) == RTX_OK) {
-          // update the schedule ready queue by adding the new task in the appropriate order
-          // the front of the queue is the highest prio task, which should be the current task
-          // add the task to the end of the queue
-          queue_add(p_tcb_new);
-          g_num_active_tasks++;
-          // run scheduler and may have to premptive run new task
+    for ( int i = 1; i < num_tasks; i++ ) {
+      // first check if the task is the kcd_task
+      TCB *p_tcb_new = &g_tcbs[i];
+      if (p_taskinfo-> ptask == kcd_task) {
+        p_tcb_new = &g_tcbs[TID_KCD];
+      } else {
+        // if the task is not the kcd_task, have to still reserve TID_KCD for the kcd_task
+        if (i == TID_KCD) {
+          // move to next iteration of for loop 
+          continue;
         }
-        p_taskinfo++;
+      }
+      // set the priority of each tcb to be medium
+      p_tcb_new-> prio = p_taskinfo-> prio;
+      p_tcb_new-> next = NULL;
+      p_tcb_new-> priv = p_taskinfo-> priv;
+      p_tcb_new-> mb_count = 0; 
+      p_tcb_new-> mb_capacity = 0; 
+      p_tcb_new-> mb_buffer = NULL;
+      p_tcb_new-> mb_buffer_end = NULL;
+      p_tcb_new-> mb_head = NULL; 
+      p_tcb_new-> mb_tail = NULL; 
+      if (k_tsk_create_new(p_taskinfo, p_tcb_new, i) == RTX_OK) {
+        // update the schedule ready queue by adding the new task in the appropriate order
+        // the front of the queue is the highest prio task, which should be the current task
+        // add the task to the end of the queue
+        queue_add(p_tcb_new);
+        g_num_active_tasks++;
+      }
+      p_taskinfo++;
     }
-    k_tsk_run_new();
-
     return RTX_OK;
 }
 /**************************************************************************//**
