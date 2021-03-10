@@ -25,11 +25,11 @@ void kcd_task(void)
 
     while(1) {
     	task_t *sender_tid = NULL; 
-    	void *ptr = mem_alloc(sizeof(struct rtx_msg_hdr)+sizeof(char));
-    	int res = recv_msg(sender_tid, ptr, sizeof(struct rtx_msg_hdr)+sizeof(char));
+    	void *ptr = mem_alloc(sizeof(struct RTX_MSG_HDR)+sizeof(char));
+    	int res = recv_msg(sender_tid, ptr, sizeof(struct RTX_MSG_HDR)+sizeof(char));
 
     	if (res == 0) {
-	    	struct rtx_msg_hdr *hdr = (struct rtx_msg_hdr) ptr;
+	    	struct RTX_MSG_HDR *hdr = (struct RTX_MSG_HDR) ptr;
 
 	    	// registering command 
 	    	if (hdr->type == KCD_REG) {

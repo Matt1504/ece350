@@ -53,6 +53,7 @@
 
 extern TCB *gp_current_task;
 extern TCB g_tcbs[MAX_TASKS];
+extern U8 *uart_buffer; 
 extern void kcd_task(void);
 
 /*

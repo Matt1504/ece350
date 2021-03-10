@@ -67,6 +67,7 @@ TCB             *gp_current_task = NULL;	// the current RUNNING task
 TCB             g_tcbs[MAX_TASKS];			// an array of TCBs
 RTX_TASK_INFO   g_null_task_info;			// The null task info
 U32             g_num_active_tasks = 0;		// number of non-dormant tasks
+U8              *uart_buffer;         // buffer for the command registration 
 
 /*---------------------------------------------------------------------------
 The memory map of the OS image may look like the following:
@@ -242,6 +243,9 @@ int k_tsk_init(RTX_TASK_INFO *task_info, int num_tasks)
     //initialize queue
     ready_queue = (struct Queue*)k_mem_alloc(sizeof(struct Queue));
 
+    // allocate the memory for the uart buffer that will be used in the interrupt 
+    uart_buffer = (U8*)k_mem_alloc(sizeof(struct RTX_MSG_HDR) + sizeof(char));
+
     RTX_TASK_INFO *p_taskinfo = &g_null_task_info;
     g_num_active_tasks = 0;
 
@@ -256,7 +260,7 @@ int k_tsk_init(RTX_TASK_INFO *task_info, int num_tasks)
     p_tcb->tid      = TID_NULL;
     p_tcb->state    = RUNNING;
     // initialize fields for mailbox stuff
-    p_tcb-> mb_count = 0; 
+    p_tcb-> num_msgs = 0; 
     p_tcb-> mb_capacity = 0; 
     p_tcb-> mb_buffer = NULL;
     p_tcb-> mb_buffer_end = NULL;
@@ -294,7 +298,7 @@ int k_tsk_init(RTX_TASK_INFO *task_info, int num_tasks)
       p_tcb_new-> prio = p_taskinfo-> prio;
       p_tcb_new-> next = NULL;
       p_tcb_new-> priv = p_taskinfo-> priv;
-      p_tcb_new-> mb_count = 0; 
+      p_tcb_new-> num_msgs = 0; 
       p_tcb_new-> mb_capacity = 0; 
       p_tcb_new-> mb_buffer = NULL;
       p_tcb_new-> mb_buffer_end = NULL;
@@ -567,7 +571,7 @@ int k_tsk_create(task_t *task, void (*task_entry)(void), U8 prio, U16 stack_size
     p_tcb->priv = 0;
     p_tcb->u_stack_size = stack_size;
     p_tcb->next = NULL;
-    p_tcb-> mb_count = 0; 
+    p_tcb-> num_msgs = 0; 
     p_tcb-> mb_capacity = 0; 
     p_tcb-> mb_buffer = NULL;
     p_tcb-> mb_buffer_end = NULL;
@@ -600,7 +604,7 @@ void k_tsk_exit(void)
     if (gp_current_task != NULL && gp_current_task->tid != TID_NULL && gp_current_task->state == RUNNING) {
       // deallocate the mailbox stuff
       k_mem_dealloc(gp_current_task-> mb_buffer);
-      gp_current_task-> mb_count = 0; 
+      gp_current_task-> num_msgs = 0; 
       gp_current_task-> mb_capacity = 0; 
       gp_current_task-> mb_buffer = NULL;
       gp_current_task-> mb_buffer_end = NULL;

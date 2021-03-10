@@ -49,10 +49,10 @@ int k_mbx_create(size_t size) {
     }
     // otherwise the allocation works so can fill in the other field
     gp_current_task-> mb_capacity = size; 
-    gp_current_task-> mb_count = 0; 
+    gp_current_task-> num_msgs = 0; 
     gp_current_task-> mb_buffer_end = (unsigned int) mb_buffer + size; 
-    gp_current_task-> mb_head = (struct msg) gp_current_task-> mb_buffer;
-    gp_current_task-> mb_tail = (struct msg) gp_current_task-> mb_buffer;
+    gp_current_task-> mb_head = (struct MSG) gp_current_task-> mb_buffer;
+    gp_current_task-> mb_tail = (struct MSG) gp_current_task-> mb_buffer;
     gp_current_task-> mb_head-> next = NULL; 
     return 0;
     // implement mailbox as a ring buffer
@@ -85,7 +85,7 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     	return -1; 
     }
     // length field in buf < MIN_MSG_SIZE
-    struct *rtx_msg_hdr header_msg = (struct rtx_msg_hdr*) buf;
+    struct *RTX_MSG_HDR header_msg = (struct RTX_MSG_HDR*) buf;
     if (header_msg-> length < MIN_MSG_SIZE) { 
     	return -1;
     }
@@ -97,7 +97,7 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     // create a pointer that points to the the task that we want to send the message to
     TCB *p_tcb = &g_tcbs[receiver_tid];
     // create a struct pointer that points to the head of the queue
-    struct msg *msg_send = NULL; 
+    struct MSG *msg_send = NULL; 
     // msg_send will be different for the first time a message is sent since the next prop will be invalid
     if (p_tcb-> mb_head-> next == NULL) {
     	msg_send = p_tcb-> mb_head;
@@ -105,12 +105,12 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     	msg_send = p_tcb-> mb_head-> next; 
     }
     // check to see if free space from head to end of queue 
-    if ((unsigned int) msg_send + header_msg-> length + sizeof(msg) > (unsigned int) p_tcb-> mb_buffer_end) {
+    if ((unsigned int) msg_send + header_msg-> length + sizeof(MSG) > (unsigned int) p_tcb-> mb_buffer_end) {
     	// can't write without overflow, can only overwrite read messages at the beginning  (circle back)
     	// set msg_send to point at the start of the queue again (circle back)
-    	msg_send = (struct msg) p_tcb-> mb_buffer;
+    	msg_send = (struct MSG) p_tcb-> mb_buffer;
     	// check enough space between front of queue and tail 
-    	if ((unsigned int) msg_send + header_msg-> length + sizeof(msg) > (unsigned int) p_tcb-> mb_tail) {
+    	if ((unsigned int) msg_send + header_msg-> length + sizeof(MSG) > (unsigned int) p_tcb-> mb_tail) {
     		// not enough space
     		return -1; 
     	} else {
@@ -122,15 +122,15 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     // can set the meta data for the message
     msg_send-> sender_id = gp_current_task->tid; 
     // the next will point to the end of this message address
-    unsigned int endAddr = (unsigned int) msg_send + header_msg-> length + sizeof(msg); 
-    msg_send-> next = (struct msg*) endAddr;
+    unsigned int endAddr = (unsigned int) msg_send + header_msg-> length + sizeof(MSG); 
+    msg_send-> next = (struct MSG*) endAddr;
     // can just memcpy implementation copy from buf to mailbox tail 
     unsigned char *csrc = (unsigned char*) buf;
     unsigned char *cdest = (unsigned char*) msg_send-> body;
     for (int i = 0; i < header_msg-> length) {
     	cdest[i] = csrc[i]; 
     }
-    ++p_tcb-> mb_count;
+    ++p_tcb-> num_msgs;
     p_tcb-> mb_head = msg_send; 
     // preempt the task based on priority ordering 
     // check if receiver is blocked, changed to unblocked if it is 
@@ -161,14 +161,14 @@ int k_recv_msg(task_t *sender_tid, void *buf, size_t len) {
     if (buf == NULL) {
     	return -1; 
     }
-    if (gp_current_task-> mb_count == 0) {
+    if (gp_current_task-> num_msgs == 0) {
     	// set the state to be blocked
     	gp_current_task-> state = BLK_MSG; 
     	k_tsk_run_new(); 
     	return 0; 
     }
     // can fail if the buffer is too small to hold the message 
-    struct *rtx_msg_hdr msg_head = (struct rtx_msg_hdr*) gp_current_task-> mb_tail-> body;
+    struct *RTX_MSG_HDR msg_head = (struct RTX_MSG_HDR*) gp_current_task-> mb_tail-> body;
     if (msg_head-> length > len) {
     	return -1; 
     }
@@ -184,7 +184,7 @@ int k_recv_msg(task_t *sender_tid, void *buf, size_t len) {
     	cdest[i] = csrc[i]; 
     }
     // message received, the number of messages is now reduced
-    --gp_current_task-> mb_count; 
+    --gp_current_task-> num_msgs; 
 
     // move the tail pointer to the next message
     gp_current_task-> mb_tail = gp_current_task-> mb_tail-> next; 

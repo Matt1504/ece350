@@ -239,10 +239,10 @@ void SER_Interrupt(void)
 	      char c = Rx_Read_Data();	// would also clear the interrupt if last character is read
 	      SER_PutChar(1, c);	// display back
 
-          size_t msg_hdr_size = sizeof(struct rtx_msg_hdr);
-          U8 *buf;
+          size_t msg_hdr_size = sizeof(struct RTX_MSG_HDR);
+          U8 *buf = uart_buffer;
 
-          struct rtx_msg_hdr *ptr = (void *)buf;
+          struct RTX_MSG_HDR *ptr = (void *)buf;
           
           ptr->length = msg_hdr_size + sizeof(char);
           ptr->type = KEY_IN;

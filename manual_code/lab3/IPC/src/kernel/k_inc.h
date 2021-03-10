@@ -60,10 +60,10 @@
 
 typedef struct msg {
     // meta data for the kernel to navigate and monitor the ring buffer 
-    struct msg *next; 
+    struct MSG *next; 
     task_t sender_id; 
     void *body;  /* the actual message (header + data)*/ 
-} msg;
+} MSG;
 
 /**
  * @brief TCB data structure definition to support two kernel tasks.
@@ -89,10 +89,9 @@ typedef struct tcb {
     //fields for mailbox 
     void                *mb_buffer;         /* mailbox buffer */ 
     void                *mb_buffer_end;     /* end of mailbox buffer */ 
-    U8                  mb_count;          /* number of messages in the mailbox */
     U16                 mb_capacity;       /* size of the mailbox */ 
-    struct msg          *mb_head;           /* pointer to head of mailbox */ 
-    struct msg          *mb_tail;           /* pointer to tial of mailbox */
+    struct MSG          *mb_head;           /* pointer to head of mailbox */ 
+    struct MSG          *mb_tail;           /* pointer to tial of mailbox */
 
     /* The following only applies to real-time tasks */
     struct timeval_rt   p_n;                /**> period in seconds and microseconds */
