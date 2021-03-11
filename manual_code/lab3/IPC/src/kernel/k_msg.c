@@ -85,7 +85,7 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     	return -1; 
     }
     // length field in buf < MIN_MSG_SIZE
-    struct RTX_MSG_HDR8 header_msg = buf;
+    RTX_MSG_HDR *header_msg = buf;
     if (header_msg-> length < MIN_MSG_SIZE) { 
     	return -1;
     }
@@ -97,7 +97,7 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     // create a pointer that points to the the task that we want to send the message to
     TCB *p_tcb = &g_tcbs[receiver_tid];
     // create a struct pointer that points to the head of the queue
-    struct MSG msg_send = NULL;
+    MSG *msg_send = NULL;
     // msg_send will be different for the first time a message is sent since the next prop will be invalid
     if (p_tcb-> mb_head-> next == NULL) {
     	msg_send = p_tcb-> mb_head;
@@ -135,7 +135,7 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     // preempt the task based on priority ordering 
     // check if receiver is blocked, changed to unblocked if it is 
     if (p_tcb-> state == BLK_MSG) {
-    	p_tcb-> state == READY;
+    	p_tcb-> state = READY;
     	// when it was blocked, it was not placed back in the ready queue, so now have to add it back
     	queue_add(p_tcb);
     	// run to check for preemption
@@ -168,7 +168,7 @@ int k_recv_msg(task_t *sender_tid, void *buf, size_t len) {
     	return 0; 
     }
     // can fail if the buffer is too small to hold the message 
-    struct *RTX_MSG_HDR msg_head = (struct RTX_MSG_HDR*) gp_current_task-> mb_tail-> body;
+    RTX_MSG_HDR *msg_head = (RTX_MSG_HDR*) gp_current_task-> mb_tail-> body;
     if (msg_head-> length > len) {
     	return -1; 
     }
