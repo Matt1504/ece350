@@ -52,7 +52,6 @@
 #include "Serial.h"
 #include "k_task.h"
 #include "k_rtx.h"
-
 #ifdef DEBUG_0
 #include "printf.h"
 #endif /* DEBUG_0 */
@@ -244,7 +243,7 @@ int k_tsk_init(RTX_TASK_INFO *task_info, int num_tasks)
     ready_queue = (struct Queue*)k_mem_alloc(sizeof(struct Queue));
 
     // allocate the memory for the uart buffer that will be used in the interrupt 
-    uart_buffer = (U8*)k_mem_alloc(sizeof(struct RTX_MSG_HDR) + sizeof(char));
+    uart_buffer = (U8*)k_mem_alloc(sizeof(RTX_MSG_HDR) + sizeof(char));
 
     RTX_TASK_INFO *p_taskinfo = &g_null_task_info;
     g_num_active_tasks = 0;

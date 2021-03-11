@@ -94,6 +94,17 @@ void* k_alloc_u_stack(task_t tid, size_t size) {
     return ++p;
 }
 
+U32* k_alloc_k_stack(task_t tid)
+{
+    return g_k_stacks[tid+1];
+}
+
+U32* k_alloc_p_stack(task_t tid)
+{
+    return g_p_stacks[tid+1];
+}
+
+
 int k_mem_init(void) {
     // initializes the RTX's memory manager
     // appropriate data structure to easily track the free and allocated regions (linked list?)

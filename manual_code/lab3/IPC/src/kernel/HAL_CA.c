@@ -248,7 +248,7 @@ void SER_Interrupt(void)
           ptr->type = KEY_IN;
           buf += msg_hdr_size;
           *buf = c;
-          send_msg(TID_KCD, (void *)ptr);
+          k_send_msg(TID_KCD, (void *)ptr);
 
 	}
   }
