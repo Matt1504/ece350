@@ -36,7 +36,7 @@ int k_mbx_create(size_t size) {
     	return -1; 
     }
     // available memory at run time is not enough to create requested mailbox 
-    gp_current_task-> mb_buffer = k_mem_alloc(size); 
+    gp_current_task-> mb_buffer = (U32*) k_mem_alloc(size); 
     if (gp_current_task-> mb_buffer == NULL) {
     	// not enough memory at run time to create mailbox 
     	return -1; 
@@ -73,7 +73,7 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     TCB *p_tcb = &g_tcbs[receiver_tid];
     // causes of failure 
     // receiver_tid does not exist or is dormant
-    if (p_tcb == NULL || p_tcb-> state == DORMANT) {
+    if (receiver_tid >= MAX_TASKS || receiver_tid < 0 || p_tcb-> state == DORMANT) {
     	return -1; 
     }
     // receiver_tid does not have a mailbox 
@@ -105,12 +105,12 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     	msg_send = p_tcb-> mb_head->next;
     }
     // check to see if free space from head to end of queue 
-    if ((unsigned int) msg_send + header_msg-> length + sizeof(MSG) > (unsigned int) p_tcb-> mb_buffer_end) {
+    if (((unsigned int) msg_send) + header_msg-> length + sizeof(MSG) > (unsigned int) p_tcb-> mb_buffer_end) {
     	// can't write without overflow, can only overwrite read messages at the beginning  (circle back)
     	// set msg_send to point at the start of the queue again (circle back)
     	msg_send = (MSG*)p_tcb-> mb_buffer;
     	// check enough space between front of queue and tail 
-    	if ((unsigned int) msg_send + header_msg-> length + sizeof(MSG) > (unsigned int) p_tcb-> mb_tail) {
+    	if (((unsigned int) msg_send) + header_msg-> length + sizeof(MSG) > (unsigned int) p_tcb-> mb_tail) {
     		// not enough space
     		return -1; 
     	} else {
@@ -122,7 +122,7 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     // can set the meta data for the message
     msg_send-> sender_id = gp_current_task->tid; 
     // the next will point to the end of this message address
-    unsigned int endAddr = (unsigned int) msg_send + header_msg-> length + sizeof(MSG); 
+    unsigned int endAddr = ((unsigned int) msg_send) + header_msg-> length + sizeof(MSG); 
     msg_send-> next = (MSG*) endAddr;
     // can just memcpy implementation copy from buf to mailbox tail 
     unsigned char *csrc = (unsigned char*) buf;
@@ -135,7 +135,7 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     // preempt the task based on priority ordering 
     // check if receiver is blocked, changed to unblocked if it is 
     if (p_tcb-> state == BLK_MSG) {
-    	p_tcb-> state == READY;
+    	p_tcb-> state = READY;
     	// when it was blocked, it was not placed back in the ready queue, so now have to add it back
     	queue_add(p_tcb);
     	// run to check for preemption
