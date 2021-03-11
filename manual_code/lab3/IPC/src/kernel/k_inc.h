@@ -60,7 +60,7 @@
 
 typedef struct msg {
     // meta data for the kernel to navigate and monitor the ring buffer 
-    struct MSG *next; 
+    MSG *next;
     task_t sender_id; 
     void *body;  /* the actual message (header + data)*/ 
 } MSG;
@@ -87,11 +87,11 @@ typedef struct tcb {
     struct timeval_rt   tv_wall;            /**> task execution wall clock time     */
     
     //fields for mailbox 
-    void                *mb_buffer;         /* mailbox buffer */ 
+    void                *mb_buffer;         /* mailbox buffer */
     void                *mb_buffer_end;     /* end of mailbox buffer */ 
     U16                 mb_capacity;       /* size of the mailbox */ 
-    struct MSG          *mb_head;           /* pointer to head of mailbox */ 
-    struct MSG          *mb_tail;           /* pointer to tial of mailbox */
+    MSG          *mb_head;           /* pointer to head of mailbox */
+    MSG          *mb_tail;           /* pointer to tial of mailbox */
 
     /* The following only applies to real-time tasks */
     struct timeval_rt   p_n;                /**> period in seconds and microseconds */

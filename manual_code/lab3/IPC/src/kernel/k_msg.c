@@ -12,7 +12,7 @@
 #endif /* ! DEBUG_0 */
 
 extern TCB *gp_current_task;
-extern g_tcbs[MAX_TASKS]; 
+extern TCB g_tcbs[MAX_TASKS];
 
 int k_mbx_create(size_t size) {
 #ifdef DEBUG_0
@@ -37,7 +37,7 @@ int k_mbx_create(size_t size) {
     }
     // available memory at run time is not enough to create requested mailbox 
     gp_current_task-> mb_buffer = k_mem_alloc(size); 
-    if (gp_current_task-> mb = NULL) {
+    if (gp_current_task-> mb_buffer = NULL) {
     	// not enough memory at run time to create mailbox 
     	return -1; 
     }
@@ -50,9 +50,9 @@ int k_mbx_create(size_t size) {
     // otherwise the allocation works so can fill in the other field
     gp_current_task-> mb_capacity = size; 
     gp_current_task-> num_msgs = 0; 
-    gp_current_task-> mb_buffer_end = (unsigned int) mb_buffer + size; 
-    gp_current_task-> mb_head = (struct MSG) gp_current_task-> mb_buffer;
-    gp_current_task-> mb_tail = (struct MSG) gp_current_task-> mb_buffer;
+    gp_current_task-> mb_buffer_end = (unsigned int) gp_current_task->mb_buffer + size;
+    gp_current_task-> mb_head = (MSG*) gp_current_task-> mb_buffer;
+    gp_current_task-> mb_tail = (MSG*) gp_current_task-> mb_buffer;
     gp_current_task-> mb_head-> next = NULL; 
     return 0;
     // implement mailbox as a ring buffer
@@ -85,7 +85,7 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     	return -1; 
     }
     // length field in buf < MIN_MSG_SIZE
-    struct *RTX_MSG_HDR header_msg = (struct RTX_MSG_HDR*) buf;
+    struct RTX_MSG_HDR8 header_msg = buf;
     if (header_msg-> length < MIN_MSG_SIZE) { 
     	return -1;
     }
@@ -97,7 +97,7 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     // create a pointer that points to the the task that we want to send the message to
     TCB *p_tcb = &g_tcbs[receiver_tid];
     // create a struct pointer that points to the head of the queue
-    struct MSG *msg_send = NULL; 
+    struct MSG msg_send = NULL;
     // msg_send will be different for the first time a message is sent since the next prop will be invalid
     if (p_tcb-> mb_head-> next == NULL) {
     	msg_send = p_tcb-> mb_head;
@@ -108,7 +108,7 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     if ((unsigned int) msg_send + header_msg-> length + sizeof(MSG) > (unsigned int) p_tcb-> mb_buffer_end) {
     	// can't write without overflow, can only overwrite read messages at the beginning  (circle back)
     	// set msg_send to point at the start of the queue again (circle back)
-    	msg_send = (struct MSG) p_tcb-> mb_buffer;
+    	msg_send = (MSG*) p_tcb-> mb_buffer;
     	// check enough space between front of queue and tail 
     	if ((unsigned int) msg_send + header_msg-> length + sizeof(MSG) > (unsigned int) p_tcb-> mb_tail) {
     		// not enough space
@@ -123,7 +123,7 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     msg_send-> sender_id = gp_current_task->tid; 
     // the next will point to the end of this message address
     unsigned int endAddr = (unsigned int) msg_send + header_msg-> length + sizeof(MSG); 
-    msg_send-> next = (struct MSG*) endAddr;
+    msg_send-> next = (MSG*) endAddr;
     // can just memcpy implementation copy from buf to mailbox tail 
     unsigned char *csrc = (unsigned char*) buf;
     unsigned char *cdest = (unsigned char*) msg_send-> body;
@@ -180,7 +180,7 @@ int k_recv_msg(task_t *sender_tid, void *buf, size_t len) {
     unsigned char *csrc = (unsigned char*) gp_current_task-> mb_tail-> body;
     unsigned char *cdest = (unsigned char*) buf; 
 
-    for (int i = 0; i < msg_head-> length) {
+    for (int i = 0; i < msg_head->length; i++) {
     	cdest[i] = csrc[i]; 
     }
     // message received, the number of messages is now reduced

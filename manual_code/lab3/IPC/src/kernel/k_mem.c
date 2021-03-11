@@ -80,7 +80,7 @@ typedef struct {
 
 struct node_t {
     int size;
-    bool allocated;
+    int allocated;
     struct node_t *next;
     struct node_t *prev;
     int padding;
@@ -124,7 +124,7 @@ int k_mem_init(void) {
     printf("Size of the initial user stack allocation: %d\r\n", head->size);
     head -> next = NULL;
     head -> prev = NULL;
-    head -> allocated = false;
+    head -> allocated = 0;
     head -> padding = 0;
 //    head -> owner_id = TID_NULL;
     node_head = head;
@@ -163,14 +163,14 @@ void* k_mem_alloc(size_t size) {
     struct node_t *n = (struct node_t*) newAddr;
     n-> size = p-> size - size - sizeof(struct node_t);
     n-> next = p-> next;
-    n-> allocated = false;
+    n-> allocated = 0;
     n-> prev = p;
     n-> padding = 0;
 
     p-> owner_id = gp_current_task-> tid;
     p-> size = size;
     p-> next = n;
-    p-> allocated = true;
+    p-> allocated = 1;
     p-> padding = padding;
 
     // increment the pointer such that the return value will be pointing directly to the memory region instead of the header of the node
@@ -199,7 +199,7 @@ int k_mem_dealloc(void *ptr) {
         return RTX_ERR;
     }
     // "free" the dynamic memory
-    p-> allocated = false;
+    p-> allocated = 0;
 
     // set the user stack pointer to null for the current tcb
     gp_current_task->u_sp = NULL;
