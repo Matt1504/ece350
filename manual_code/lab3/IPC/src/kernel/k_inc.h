@@ -87,8 +87,8 @@ typedef struct tcb {
     struct timeval_rt   tv_wall;            /**> task execution wall clock time     */
     
     //fields for mailbox 
-    U32*                 mb_buffer;         /* mailbox buffer */
-    U32*                 mb_buffer_end;     /* end of mailbox buffer */
+    U32*                mb_buffer;         /* mailbox buffer */
+    U32*                mb_buffer_end;     /* end of mailbox buffer */
     U16                 mb_capacity;       /* size of the mailbox */ 
     MSG*          		mb_head;           /* pointer to head of mailbox */
     MSG*          		mb_tail;           /* pointer to tial of mailbox */
