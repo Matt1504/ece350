@@ -48,6 +48,8 @@
 #pragma push
 #pragma arm
 
+extern U8 *uart_buffer; 
+
 /**************************************************************************//**
  * @brief   assembly labels that all embedded assembly code can refer to
  * @note    This function should not be called

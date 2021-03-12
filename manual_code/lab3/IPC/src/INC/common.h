@@ -145,13 +145,6 @@ typedef unsigned char       task_t;
  *===========================================================================
  */
 
-typedef struct msg {
-    // meta data for the kernel to navigate and monitor the ring buffer
-    struct msg *next;
-    task_t sender_id;
-    void *body;  /* the actual message (header + data)*/
-} MSG;
-
 
 /**
  * @brief Timing structure

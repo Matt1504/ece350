@@ -286,7 +286,7 @@ int k_tsk_init(RTX_TASK_INFO *task_info, int num_tasks)
     	printf("HELLO WORLD\n");
       // first check if the task is the kcd_task
       TCB *p_tcb_new = &g_tcbs[i];
-      if (p_taskinfo-> ptask == kcd_task) {
+      if (p_taskinfo-> ptask == &kcd_task) {
         p_tcb_new = &g_tcbs[TID_KCD];
       } else {
         // if the task is not the kcd_task, have to still reserve TID_KCD for the kcd_task

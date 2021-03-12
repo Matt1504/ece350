@@ -84,7 +84,7 @@ int main()
     printf("mode = 0x%x\r\n", mode);
 
     // System and Task set up by auto testing software
-    if (ae_init(&sys_info, task_info, 10) != RTX_OK) {
+    if (ae_init(&sys_info, task_info, 2) != RTX_OK) {
     	printf("RTX INIT FAILED\r\n");
     	return RTX_ERR;
     }

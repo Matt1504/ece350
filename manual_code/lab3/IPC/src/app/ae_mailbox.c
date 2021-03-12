@@ -47,64 +47,105 @@
  *              It yields the cpu every 6 lines are printed.
  *****************************************************************************/
 
-
-
-void receiver_task(){
-
-	printf("I AM THE RECEIVER\n");
-	task_t sender_tid = 1;
-    mbx_create(1000);
-    unsigned char buffer[100];
-    recv_msg(&sender_tid, buffer, 100);
-    printf("%c", buffer[0]);
-}
-
-void sender_task(){
-	task_t receiver_tid = 0;
-	printf("I AM THE SENDER\n");
-    mbx_create(1000);
-    unsigned char buffer[100];
-    buffer[0] = 'h';
-
-    int sendVal = send_msg(receiver_tid + 10, buffer);
-    printf("Test with invalid receiverTid: %d\n", sendVal);
-
-//    sendVal = send_msg(no_mail_tid, buffer);
-//    printf(Test with no mailbox tid: %d\n", sendVal);
-//
-//    sendVal = send_msg(receiver_tid, null);
-//    printf(Test with invalid buffer: %d\n", sendVal);
-//
-//    sendVal = send_msg(receiverTid, buffer);
-//    printf("Test with valid tid: %d\n", sendVal);
-}
-
 void mailbox_task1() {
+	// the tid of this task should be 1 since null task is 0
+	task_t sender_id;
+	void *buffer = mem_alloc(60); 
+	printf("TEST CASE 1: Mailbox Creation\n");
+	// first try to receive a message before mailbox is created
+	if (recv_msg(&send, &buf, 5) == 0) {
+		printf("TEST CASE FAILED: recv_message passed before mailbox was created\n"); 
+		return;
+	}
 
-	printf("Creating first mailbox\n");
-	int returnVal = mbx_create(0x300000000);
-	if (returnVal == -1){
-		printf("Mailbox returned an error\n");
-	};
+	if (mbx_create(0) == 0){
+		printf("TEST CASE FAILED: mailbox created of size 0\n");
+		return; 
+	}
+	// size of the mailbox will be 100 bytes 
+	if (mbx_create(100) == -1){
+		printf("TEST CASE FAILED: mailbox was not created\n");
+		return; 
+	}
+	if (mbx_create(1000) == 0){
+		printf("TEST CASE FAILED: second mailbox was created on single task\n");
+		return; 
+	}
+	printf("TEST CASE 1 PASSED\n");
+	// also test blocking for no messages
+	int retVal = recv_msg(&send, buffer, 5); 
+	// this should pass, but such that the state becomes blocked and k_tsk_run_new() will run so send_task2 will now run
 
-	printf("Creating second mailbox\n");
-	returnVal = mbx_create(0);
-	if (returnVal == -1){
-		printf("Mailbox returned an error\n");
-	};
+	// when send_task2 yields after sending the message, this should run again
+	printf("TEST CASE 3: Message Receiving\n"); 
 
-	printf("Creating third mailbox\n");
-	returnVal = mbx_create(1000);
-	if (returnVal == 0){
-		printf("Mailbox was successfully created\n");
-	};
+	// receive the message sent by task send_task2
+	if (recv_msg(&sender_id, buffer, 60) == -1) {
+		printf("TEST CASE FAILED: failed to receive message in mailbox\n");
+		return;
+	} else {
+		printf("sender id: %d\n", sender_id);
+	}
 
-	printf("Creating fourth mailbox\n");
-	returnVal = mbx_create(1000);
-	if (returnVal == -1){
-		printf("Mailbox returned an error\n");
-	};
-	return;
+	tsk_yield(); 
+
+	// receive the message sent by task send_task2 (should have overwritten the first message)
+	if (recv_msg(&sender_id, buffer, 60) == -1) {
+		printf("TEST CASE FAILED: failed to receive overwritten message in mailbox\n");
+		return;
+	} else {
+		printf("sender id: %d\n", sender_id);
+	}
+
+	printf("TEST CASE 3 PASSED\n");
+	mem_dealloc(buffer); 
+	tsk_exit(); 
+}
+
+void send_task2() {
+	printf("TEST CASE 2: Message Sending\n"); 
+	// the tid of this task should be 2
+	// first have to create the message
+	// alloc space for the message (our message data will just be a char to make life easy)
+	U8 *buf = (U8*) mem_alloc(sizeof(struct rtx_msg_hdr) + 1); 
+	struct rtx_msg_hdr *ptr = (void*)buf;
+	// size of message is 60 bytes
+	ptr-> length = 60; 
+	ptr-> type = DEFAULT;
+	buf += sizeof(struct rtx_msg_hdr); 
+	*buf = 't'; 
+
+	// send to a task that doesn't exist 
+	if(send_msg(20, (void*)ptr) == 0) {
+		printf("TEST CASE FAILED: message sent to task that doesn't exist\n");
+		return; 
+	}
+	// send to a task with no mailbox 
+	if (send_msg(0, (void*)ptr) == 0) {
+		printf("TEST CASE FAILED: message sent to task with no mailbox\n"); 
+		return; 
+	}
+	// send the message to the task 1
+	if (send_msg(1, (void*)ptr) == -1) {
+		printf("TEST CASE FAILED: message could not be sent to mailbox\n");
+	}
+	// send the message again (should not be possible since there's not enough space)
+	if (send_msg(1, (void*)ptr) == 0) {
+		printf("TEST CASE FAILED: message was sent when mailbox does not have enough space\n");
+		return;
+	}
+	printf("TEST CASE 2 PASSED\n");
+
+	tsk_yield();
+
+	// when it gets to run again, the task 1 should have received the message, send the message again
+	if (send_msg(1, (void*)ptr) == -1) {
+		printf("TEST CASE FAILED: message could not be sent to mailbox after previous message was received\n");
+		return;
+	}
+
+	mem_dealloc(buf): 
+	tsk_exit(); 
 }
 
 //void mailbox_task2() {

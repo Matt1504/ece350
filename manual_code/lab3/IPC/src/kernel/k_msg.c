@@ -99,7 +99,7 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     // create a pointer that points to the the task that we want to send the message to
 
     // create a struct pointer that points to the head of the queue
-    MSG *msg_send;
+    MSG *msg_send = NULL;
     // msg_send will be different for the first time a message is sent since the next prop will be invalid
     if (p_tcb-> mb_head-> next == NULL) {
     	msg_send = p_tcb-> mb_head;
@@ -159,15 +159,16 @@ int k_recv_msg(task_t *sender_tid, void *buf, size_t len) {
     if (gp_current_task-> mb_buffer == NULL) {
     	return -1; 
     }
+    if (gp_current_task-> num_msgs == 0) {
+        // set the state to be blocked
+        printf("No messages, entering blocked state\n"); 
+        gp_current_task-> state = BLK_MSG; 
+        k_tsk_run_new(); 
+        return 0; 
+    }
     // buf argument is a null pointer 
     if (buf == NULL) {
     	return -1; 
-    }
-    if (gp_current_task-> num_msgs == 0) {
-    	// set the state to be blocked
-    	gp_current_task-> state = BLK_MSG; 
-    	k_tsk_run_new(); 
-    	return 0; 
     }
     // can fail if the buffer is too small to hold the message 
     RTX_MSG_HDR *msg_head = (RTX_MSG_HDR*) gp_current_task-> mb_tail-> body;
