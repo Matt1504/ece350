@@ -145,6 +145,14 @@ typedef unsigned char       task_t;
  *===========================================================================
  */
 
+typedef struct msg {
+    // meta data for the kernel to navigate and monitor the ring buffer
+    struct msg *next;
+    task_t sender_id;
+    void *body;  /* the actual message (header + data)*/
+} MSG;
+
+
 /**
  * @brief Timing structure
  */
@@ -196,6 +204,14 @@ typedef struct rtx_task_info {
     struct timeval_rt   tv_cpu;             /**> task execution cpu time            */
     struct timeval_rt   tv_wall;            /**> task execution wall clock time     */
     
+
+    //fields for mailbox
+	U32*                mb_buffer;         /* mailbox buffer */
+	U32*                mb_buffer_end;     /* end of mailbox buffer */
+	int               	mb_capacity;       /* size of the mailbox */
+	MSG*          		mb_head;           /* pointer to head of mailbox */
+	MSG*          		mb_tail;           /* pointer to tial of mailbox */
+
     /* The following only applies to real-time tasks */
     struct timeval_rt   p_n;                /**> period in seconds and microseconds */
     RTX_MSG_HDR        *msg_hdr;            /**> real-time task message header      */

@@ -6,9 +6,9 @@
  */
 
 #include "k_msg.h"
-
-#ifdef DEBUG_0
 #include "printf.h"
+#ifdef DEBUG_0
+
 #endif /* ! DEBUG_0 */
 
 extern TCB *gp_current_task;
@@ -28,6 +28,7 @@ int k_mbx_create(size_t size) {
 
     // possible cases of failure 
     // calling task already has a mailbox
+
     if (gp_current_task -> mb_capacity > 0) {
     	return -1;
     }
@@ -73,6 +74,7 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     TCB *p_tcb = &g_tcbs[receiver_tid];
     // causes of failure 
     // receiver_tid does not exist or is dormant
+    printf("%d\n", p_tcb->state);
     if (p_tcb == NULL || p_tcb-> state == DORMANT) {
     	return -1; 
     }

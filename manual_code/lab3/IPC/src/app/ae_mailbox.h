@@ -26,54 +26,44 @@
  ****************************************************************************
  */
 
-#ifndef AE_
-#define AE_
-
-#include "ae_mailbox.h"
-#include "Serial.h"
-#include "printf.h"
-#include "rtx.h"
-#include "ae_priv_tasks.h"
-#include "ae_usr_tasks.h"
-
-/*
- *===========================================================================
- *                            FUNCTION PROTOTYPES
- *===========================================================================
- */
-
 /**************************************************************************//**
- * @file        ae.h
- * @brief       Automated Evaluation (AE) Framework Header File
+ * @file        priv_tasks.h
+ * @brief       Two privileged tasks header file
  *
  * @version     V1.2021.01
  * @authors     Yiqing Huang
  * @date        2021 JAN
  *
- * @attention
- * @note
- * @details
- *
  *****************************************************************************/
+
+#ifndef PRIV_TASKS_H_
+#define PRIV_TASKS_H_
+
+#include "k_rtx.h"
+#include "rtx.h"
+
+/*
+ *===========================================================================
+ *                             MACROS
+ *===========================================================================
+ */
+#define DELAY 5000000
 
 /*
  *===========================================================================
  *                            FUNCTION PROTOTYPES
  *===========================================================================
  */
+extern void task1(void);
 
-int  ae_init          (RTX_SYS_INFO *sys_info, \
-                       RTX_TASK_INFO *task_info, int num_tasks);
-int  ae_set_sys_info  (RTX_SYS_INFO *sys_info);
-void ae_set_task_info (RTX_TASK_INFO *tasks, int num_tasks);
-int  ae_start(void);
+void mailbox_task1     (void);
+void mailbox_task2    (void);
+void receiver_task	(void);
+void sender_task (void);
 
-int  test_mem(void);
-
-#endif // ! AE_
+#endif // ! PRIV_TASKS_H_
 /*
  *===========================================================================
  *                             END OF FILE
  *===========================================================================
  */
-

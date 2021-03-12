@@ -52,8 +52,9 @@
 #include "Serial.h"
 #include "k_task.h"
 #include "k_rtx.h"
-#ifdef DEBUG_0
 #include "printf.h"
+#ifdef DEBUG_0
+
 #endif /* DEBUG_0 */
 
 /*
@@ -260,7 +261,7 @@ int k_tsk_init(RTX_TASK_INFO *task_info, int num_tasks)
     p_tcb->state    = RUNNING;
     // initialize fields for mailbox stuff
     p_tcb-> num_msgs = 0; 
-    p_tcb-> mb_capacity = 0; 
+    p_tcb-> mb_capacity = 0;
     p_tcb-> mb_buffer = NULL;
     p_tcb-> mb_buffer_end = NULL;
     p_tcb-> mb_head = NULL; 
@@ -281,7 +282,8 @@ int k_tsk_init(RTX_TASK_INFO *task_info, int num_tasks)
 
     // create the rest of the tasks    
     p_taskinfo = task_info;
-    for ( int i = 1; i < num_tasks; i++ ) {
+    for ( int i = 1; i <= num_tasks; i++ ) {
+    	printf("HELLO WORLD\n");
       // first check if the task is the kcd_task
       TCB *p_tcb_new = &g_tcbs[i];
       if (p_taskinfo-> ptask == kcd_task) {
@@ -303,6 +305,7 @@ int k_tsk_init(RTX_TASK_INFO *task_info, int num_tasks)
       p_tcb_new-> mb_buffer_end = NULL;
       p_tcb_new-> mb_head = NULL; 
       p_tcb_new-> mb_tail = NULL; 
+      printf("CHECKPOINT 2\n");
       if (k_tsk_create_new(p_taskinfo, p_tcb_new, i) == RTX_OK) {
         // update the schedule ready queue by adding the new task in the appropriate order
         // the front of the queue is the highest prio task, which should be the current task
@@ -337,11 +340,12 @@ int k_tsk_create_new(RTX_TASK_INFO *p_taskinfo, TCB *p_tcb, task_t tid)
     extern U32 K_RESTORE;
 
     U32 *sp;
-
+    printf("CHECKOUTPOINT 3\N");
     if (p_tcb == NULL)
     {
         return RTX_ERR;
     }
+    printf("CHECKOUTPOINT 4\N");
     p_tcb ->tid = tid;
     p_tcb->state = READY;
 
@@ -413,7 +417,7 @@ int k_tsk_create_new(RTX_TASK_INFO *p_taskinfo, TCB *p_tcb, task_t tid)
         *(--sp) = 0x0;
     }
     p_tcb->msp = sp;
-
+    printf("RTX_OK RAN\n");
     return RTX_OK;
 }
 
@@ -493,6 +497,7 @@ int k_tsk_run_new(void)
  *****************************************************************************/
 int k_tsk_yield(void)
 {
+
     // Example: running task E calls tsk_yield
     // if the priority of hgihest-priority task in teh ready queue, F, is STRICTLY less than that of E, then E continues
     // otherwise, F is scheduled and E is added to the back of the ready queue (last task among tasks with same priority)
@@ -502,7 +507,10 @@ int k_tsk_yield(void)
     if (ready_queue-> front-> prio < ready_queue-> front-> next-> prio) {
       // the priority of the current running task is strictly higher than the next task
       // that means the current running task will continue to run
-      return RTX_OK;
+    	if (gp_current_task != ready_queue-> front) {
+    	    k_tsk_run_new();
+    	}
+    	return RTX_OK;
     } else {
       // the priority of the current running task is either of a priority equal to or less than the next task
       // I can "delete" the task and re-add it to the back of the ready of the queue in order
@@ -571,7 +579,7 @@ int k_tsk_create(task_t *task, void (*task_entry)(void), U8 prio, U16 stack_size
     p_tcb->u_stack_size = stack_size;
     p_tcb->next = NULL;
     p_tcb-> num_msgs = 0; 
-    p_tcb-> mb_capacity = 0; 
+    p_tcb-> mb_capacity = 0;
     p_tcb-> mb_buffer = NULL;
     p_tcb-> mb_buffer_end = NULL;
     p_tcb-> mb_head = NULL; 

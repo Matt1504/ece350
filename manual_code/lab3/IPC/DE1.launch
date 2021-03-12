@@ -1,31 +1,48 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="com.arm.debugger.launcher2">
     <mapAttribute key="AverageDurationTracker">
-        <mapEntry key="*Fetching Data Model" value="944240"/>
-        <mapEntry key="*list global low level symbols" value="1120173"/>
-        <mapEntry key="*updating registers" value="220545800"/>
-        <mapEntry key="AddEventObserver" value="2058628"/>
-        <mapEntry key="Evaluate" value="4596000"/>
-        <mapEntry key="compute execution mode" value="4206162"/>
-        <mapEntry key="continue" value="11191434"/>
-        <mapEntry key="get capabilities" value="376225"/>
-        <mapEntry key="get execution addresss" value="354914"/>
-        <mapEntry key="get source lines" value="292570"/>
-        <mapEntry key="initialize command help" value="70304362"/>
-        <mapEntry key="interrupt" value="9808800"/>
-        <mapEntry key="list breakpoint options" value="200635"/>
-        <mapEntry key="list breakpoints" value="23276043"/>
-        <mapEntry key="list instruction sets" value="438843"/>
-        <mapEntry key="list signals" value="10693696"/>
-        <mapEntry key="list watchpoint options" value="1209621"/>
-        <mapEntry key="list watchpoints" value="388934"/>
-        <mapEntry key="loadfile" value="123018300"/>
+        <mapEntry key="*Fetching Data Model" value="111495"/>
+        <mapEntry key="*list global low level symbols" value="2350849"/>
+        <mapEntry key="*loading memory from target" value="5649350"/>
+        <mapEntry key="*loading values from target" value="4416800"/>
+        <mapEntry key="*updating registers" value="190737950"/>
+        <mapEntry key="*updating variables" value="4753850"/>
+        <mapEntry key="AddEventObserver" value="1515918"/>
+        <mapEntry key="Evaluate" value="594685"/>
+        <mapEntry key="Retrieving globals list" value="25865700"/>
+        <mapEntry key="areCachesAvailable" value="236882"/>
+        <mapEntry key="break" value="6018269"/>
+        <mapEntry key="compute execution mode" value="307376"/>
+        <mapEntry key="continue" value="17116093"/>
+        <mapEntry key="disassemble" value="94430478"/>
+        <mapEntry key="finish" value="18164057"/>
+        <mapEntry key="get byte order" value="245775"/>
+        <mapEntry key="get capabilities" value="369000"/>
+        <mapEntry key="get execution addresss" value="333903"/>
+        <mapEntry key="get source lines" value="196301"/>
+        <mapEntry key="getValidEncodings" value="210801"/>
+        <mapEntry key="initialize command help" value="45514708"/>
+        <mapEntry key="interrupt" value="13693353"/>
+        <mapEntry key="list breakpoint options" value="75133"/>
+        <mapEntry key="list breakpoints" value="473038"/>
+        <mapEntry key="list instruction sets" value="136766"/>
+        <mapEntry key="list signals" value="3352948"/>
+        <mapEntry key="list watchpoint options" value="103105"/>
+        <mapEntry key="list watchpoints" value="161126"/>
+        <mapEntry key="loadfile" value="176254738"/>
+        <mapEntry key="next" value="30084537"/>
+        <mapEntry key="nexti" value="19830780"/>
         <mapEntry key="reload-symbol-file" value="37856218"/>
-        <mapEntry key="set CWD" value="3147462"/>
-        <mapEntry key="set debug-from" value="2038912"/>
-        <mapEntry key="source altera_target_check.py" value="453826509"/>
-        <mapEntry key="start" value="83831543"/>
-        <mapEntry key="waitForTargetToStop" value="30259206"/>
+        <mapEntry key="remove" value="8873000"/>
+        <mapEntry key="set CWD" value="938664"/>
+        <mapEntry key="set breakpoint properties" value="13483292"/>
+        <mapEntry key="set debug-from" value="634912"/>
+        <mapEntry key="source altera_target_check.py" value="313786171"/>
+        <mapEntry key="start" value="24636989"/>
+        <mapEntry key="step" value="19619187"/>
+        <mapEntry key="stepi" value="13918300"/>
+        <mapEntry key="toggleBreakpoint" value="10970525"/>
+        <mapEntry key="waitForTargetToStop" value="22209984"/>
     </mapAttribute>
     <intAttribute key="DEBUG_TAB..RESOURCES.COUNT" value="0"/>
     <intAttribute key="FILES.CONNECT_TO_GDB_SERVER.RESOURCES.COUNT" value="0"/>
@@ -35,29 +52,33 @@
     <stringAttribute key="FILES.DEBUG_RESIDENT_ANDROID.RESOURCES.0.VALUE" value=""/>
     <intAttribute key="FILES.DEBUG_RESIDENT_ANDROID.RESOURCES.COUNT" value="1"/>
     <listAttribute key="FILES.DEBUG_RESIDENT_APP"/>
-    <stringAttribute key="FILES.DEBUG_RESIDENT_APP.RESOURCES.0.TYPE" value="APPLICATION_ON_TARGET"/>
+    <stringAttribute key="FILES.DEBUG_RESIDENT_APP.RESOURCES.0.TYPE" value="TARGET_WORKING_DIR"/>
     <stringAttribute key="FILES.DEBUG_RESIDENT_APP.RESOURCES.0.VALUE" value=""/>
-    <stringAttribute key="FILES.DEBUG_RESIDENT_APP.RESOURCES.1.TYPE" value="TARGET_WORKING_DIR"/>
+    <stringAttribute key="FILES.DEBUG_RESIDENT_APP.RESOURCES.1.TYPE" value="APPLICATION_ON_TARGET"/>
     <stringAttribute key="FILES.DEBUG_RESIDENT_APP.RESOURCES.1.VALUE" value=""/>
     <intAttribute key="FILES.DEBUG_RESIDENT_APP.RESOURCES.COUNT" value="2"/>
     <listAttribute key="FILES.DOWNLOAD_AND_DEBUG"/>
-    <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.0.TYPE" value="TARGET_DOWNLOAD_DIR"/>
+    <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.0.OPTION.ALSO_LOAD_SYMBOLS" value="true"/>
+    <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.0.OPTION.ON_DEMAND_LOAD" value="true"/>
+    <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.0.TYPE" value="APP_ON_HOST_TO_DOWNLOAD"/>
     <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.0.VALUE" value=""/>
     <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.1.OPTION.ALSO_LOAD_SYMBOLS" value="true"/>
     <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.1.OPTION.ON_DEMAND_LOAD" value="true"/>
-    <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.1.TYPE" value="APP_ON_HOST_TO_DOWNLOAD"/>
+    <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.1.TYPE" value="TARGET_WORKING_DIR"/>
     <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.1.VALUE" value=""/>
-    <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.2.TYPE" value="TARGET_WORKING_DIR"/>
+    <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.2.TYPE" value="TARGET_DOWNLOAD_DIR"/>
     <stringAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.2.VALUE" value=""/>
     <intAttribute key="FILES.DOWNLOAD_AND_DEBUG.RESOURCES.COUNT" value="3"/>
     <listAttribute key="FILES.DOWNLOAD_DEBUG"/>
-    <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.0.TYPE" value="TARGET_DOWNLOAD_DIR"/>
+    <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.0.OPTION.ALSO_LOAD_SYMBOLS" value="true"/>
+    <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.0.OPTION.ON_DEMAND_LOAD" value="true"/>
+    <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.0.TYPE" value="APP_ON_HOST_TO_DOWNLOAD"/>
     <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.0.VALUE" value=""/>
     <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.1.OPTION.ALSO_LOAD_SYMBOLS" value="true"/>
     <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.1.OPTION.ON_DEMAND_LOAD" value="true"/>
-    <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.1.TYPE" value="APP_ON_HOST_TO_DOWNLOAD"/>
+    <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.1.TYPE" value="TARGET_WORKING_DIR"/>
     <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.1.VALUE" value=""/>
-    <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.2.TYPE" value="TARGET_WORKING_DIR"/>
+    <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.2.TYPE" value="TARGET_DOWNLOAD_DIR"/>
     <stringAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.2.VALUE" value=""/>
     <intAttribute key="FILES.DOWNLOAD_DEBUG.RESOURCES.COUNT" value="3"/>
     <intAttribute key="FILES.DOWNLOAD_DEBUG_ANDROID.RESOURCES.COUNT" value="0"/>
@@ -91,6 +112,7 @@
     <stringAttribute key="FILES.SELECTED_DEBUG_OPEATION" value="ICE_DEBUG"/>
     <stringAttribute key="HOST_WORKING_DIR" value="${workspace_loc}"/>
     <booleanAttribute key="HOST_WORKING_DIR_USE_DEFAULT" value="true"/>
+    <booleanAttribute key="InstructionStepping" value="false"/>
     <booleanAttribute key="KEY_COMMANDS_AFTER_CONNECT" value="false"/>
     <stringAttribute key="KEY_COMMANDS_AFTER_CONNECT_TEXT" value=""/>
     <booleanAttribute key="KEY_COMMANDS_AS_CONNECT" value="false"/>
@@ -100,12 +122,18 @@
     <booleanAttribute key="VFS_ENABLED" value="true"/>
     <stringAttribute key="VFS_LOCAL_DIR" value="${workspace_loc}"/>
     <stringAttribute key="VFS_REMOTE_MOUNT" value="/writeable"/>
-    <stringAttribute key="breakpoints" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#10;&lt;breakpoints order=&quot;ALPHA&quot;&gt;&#10;&lt;/breakpoints&gt;&#10;"/>
+    <stringAttribute key="breakpoints" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#10;&lt;breakpoints order=&quot;ALPHA&quot;&gt;&#10;&#9;&lt;breakpoint ignorecount=&quot;0&quot; threadenabled=&quot;no&quot; core_list=&quot;&quot; continue=&quot;no&quot; verboseBreakpoints=&quot;yes&quot; kind=&quot;SOURCEPOSITION&quot;&gt;&#10;&#9;&#9;&lt;master_location index=&quot;0&quot; enabled=&quot;false&quot; version=&quot;2&quot; hostFile=&quot;N:\ECE350\ece350_4\ece350\manual_code\lab3\IPC\src\kernel\k_task.c&quot; line=&quot;289&quot;/&gt;&#10;&#9;&#9;&lt;location index=&quot;0&quot; enabled=&quot;false&quot; version=&quot;2&quot; address=&quot;S:0x00100E38&quot; debugFile=&quot;N:/ECE350/ece350_4/ece350/manual_code/lab3/IPC/src/kernel/k_task.c&quot; hostFile=&quot;N:\ECE350\ece350_4\ece350\manual_code\lab3\IPC\src\kernel\k_task.c&quot; line=&quot;293&quot;/&gt;&#10;&#9;&lt;/breakpoint&gt;&#10;&#9;&lt;breakpoint ignorecount=&quot;0&quot; threadenabled=&quot;no&quot; core_list=&quot;&quot; continue=&quot;no&quot; verboseBreakpoints=&quot;yes&quot; kind=&quot;SOURCEPOSITION&quot;&gt;&#10;&#9;&#9;&lt;master_location index=&quot;0&quot; enabled=&quot;true&quot; version=&quot;2&quot; address=&quot;S:0x00100620&quot; debugFile=&quot;N:/ECE350/ece350_4/ece350/manual_code/lab3/IPC/src/kernel/k_msg.c&quot; hostFile=&quot;N:\ECE350\ece350_4\ece350\manual_code\lab3\IPC\src\kernel\k_msg.c&quot; line=&quot;31&quot; function=&quot;k_mbx_create&quot;/&gt;&#10;&#9;&#9;&lt;location index=&quot;0&quot; enabled=&quot;true&quot; version=&quot;2&quot; address=&quot;S:0x00100620&quot; debugFile=&quot;N:/ECE350/ece350_4/ece350/manual_code/lab3/IPC/src/kernel/k_msg.c&quot; hostFile=&quot;N:\ECE350\ece350_4\ece350\manual_code\lab3\IPC\src\kernel\k_msg.c&quot; line=&quot;32&quot; function=&quot;k_mbx_create&quot;/&gt;&#10;&#9;&lt;/breakpoint&gt;&#10;&#9;&lt;breakpoint ignorecount=&quot;0&quot; threadenabled=&quot;no&quot; core_list=&quot;&quot; continue=&quot;no&quot; verboseBreakpoints=&quot;yes&quot; kind=&quot;SOURCEPOSITION&quot;&gt;&#10;&#9;&#9;&lt;master_location index=&quot;0&quot; enabled=&quot;true&quot; version=&quot;2&quot; address=&quot;S:0x00100734&quot; debugFile=&quot;N:/ECE350/ece350_4/ece350/manual_code/lab3/IPC/src/kernel/k_msg.c&quot; hostFile=&quot;N:\ECE350\ece350_4\ece350\manual_code\lab3\IPC\src\kernel\k_msg.c&quot; line=&quot;74&quot; function=&quot;k_send_msg&quot;/&gt;&#10;&#9;&#9;&lt;location index=&quot;0&quot; enabled=&quot;true&quot; version=&quot;2&quot; address=&quot;S:0x00100734&quot; debugFile=&quot;N:/ECE350/ece350_4/ece350/manual_code/lab3/IPC/src/kernel/k_msg.c&quot; hostFile=&quot;N:\ECE350\ece350_4\ece350\manual_code\lab3\IPC\src\kernel\k_msg.c&quot; line=&quot;74&quot; function=&quot;k_send_msg&quot;/&gt;&#10;&#9;&lt;/breakpoint&gt;&#10;&#9;&lt;breakpoint ignorecount=&quot;0&quot; threadenabled=&quot;no&quot; core_list=&quot;&quot; continue=&quot;no&quot; verboseBreakpoints=&quot;yes&quot; kind=&quot;SOURCEPOSITION&quot;&gt;&#10;&#9;&#9;&lt;master_location index=&quot;0&quot; enabled=&quot;true&quot; version=&quot;2&quot; address=&quot;S:0x00100734&quot; debugFile=&quot;N:/ECE350/ece350_4/ece350/manual_code/lab3/IPC/src/kernel/k_msg.c&quot; hostFile=&quot;N:\ECE350\ece350_4\ece350\manual_code\lab3\IPC\src\kernel\k_msg.c&quot; line=&quot;74&quot;/&gt;&#10;&#9;&#9;&lt;location index=&quot;0&quot; enabled=&quot;true&quot; version=&quot;2&quot; address=&quot;S:0x00100734&quot; debugFile=&quot;N:/ECE350/ece350_4/ece350/manual_code/lab3/IPC/src/kernel/k_msg.c&quot; hostFile=&quot;N:\ECE350\ece350_4\ece350\manual_code\lab3\IPC\src\kernel\k_msg.c&quot; line=&quot;74&quot;/&gt;&#10;&#9;&lt;/breakpoint&gt;&#10;&lt;/breakpoints&gt;&#10;"/>
     <listAttribute key="com.arm.debug.views.common.AddressTracker.debugger.view.DisassemblyView.addresses">
         <listEntry value="&lt;Next Instruction&gt;"/>
     </listAttribute>
     <listAttribute key="com.arm.debug.views.common.AddressTracker.debugger.view.DisassemblyView.ranges">
         <listEntry value="100"/>
+    </listAttribute>
+    <listAttribute key="com.arm.debug.views.common.AddressTracker.debugger.view.MemoryView.addresses">
+        <listEntry value="&lt;Next Instruction&gt;"/>
+    </listAttribute>
+    <listAttribute key="com.arm.debug.views.common.AddressTracker.debugger.view.MemoryView.ranges">
+        <listEntry value="1024"/>
     </listAttribute>
     <stringAttribute key="config_db_activity_name" value="Debug Cortex-A9_0"/>
     <stringAttribute key="config_db_connection_keys" value="rvi_address target_initialization_script dtsl_config dtsl_tracecapture_option dtsl_config_script config_file setup TCP_KILL_ON_EXIT TCP_DISABLE_EXTENDED_MODE"/>
@@ -117,14 +145,27 @@
     <stringAttribute key="config_file" value="CDB://../Arria V SoC/Altera_DEV5XS1.rvc"/>
     <booleanAttribute key="connectOnly" value="false"/>
     <stringAttribute key="connection_type" value="USB-Blaster"/>
+    <listAttribute key="debugger.view.DisassemblyView:current">
+        <listEntry value="&lt;Next Instruction&gt;"/>
+        <listEntry value="100"/>
+    </listAttribute>
     <listAttribute key="debugger.view.DisassemblyView:current:8581874436178048151.viewid=2">
         <listEntry value="&lt;Next Instruction&gt;"/>
         <listEntry value="100"/>
     </listAttribute>
-    <stringAttribute key="debugger.view.NewRegisterView:DebugOutlineColumnState" value="OutlineConfig1&#9;8&#9;0&#9;true&#9;true&#9;49&#9;-1&#9;true&#9;1&#9;false&#9;true&#9;90&#9;-1&#9;true&#9;2&#9;true&#9;true&#9;45&#9;-1&#9;true&#9;3&#9;false&#9;true&#9;41&#9;-1&#9;true&#9;4&#9;false&#9;true&#9;50&#9;-1&#9;true&#9;5&#9;true&#9;true&#9;37&#9;-1&#9;true&#9;6&#9;false&#9;true&#9;62&#9;-1&#9;true&#9;7&#9;true&#9;true&#9;53&#9;-1&#9;true"/>
+    <stringAttribute key="debugger.view.MemoryView" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#10;&lt;page&gt;&#10;&#9;&lt;memoryView/&gt;&#10;&lt;/page&gt;&#10;"/>
+    <listAttribute key="debugger.view.MemoryView:current">
+        <listEntry value="&lt;Next Instruction&gt;"/>
+        <listEntry value="1024"/>
+    </listAttribute>
+    <stringAttribute key="debugger.view.NewRegisterView:DebugOutlineColumnState" value="OutlineConfig1&#9;8&#9;0&#9;true&#9;true&#9;56&#9;-1&#9;true&#9;1&#9;false&#9;true&#9;109&#9;-1&#9;true&#9;2&#9;true&#9;true&#9;52&#9;-1&#9;true&#9;3&#9;false&#9;true&#9;47&#9;-1&#9;true&#9;4&#9;false&#9;true&#9;56&#9;-1&#9;true&#9;5&#9;true&#9;true&#9;43&#9;-1&#9;true&#9;6&#9;false&#9;true&#9;74&#9;-1&#9;true&#9;7&#9;true&#9;true&#9;61&#9;-1&#9;true"/>
     <stringAttribute key="debugger.view.NewRegisterView:_selectedRegisterSet" value="All registers"/>
     <mapAttribute key="debugger.view.NewRegisterView_registerSets"/>
+    <stringAttribute key="debugger.view.VariableTreeView:DebugOutlineColumnState" value="OutlineConfig1&#9;8&#9;0&#9;true&#9;true&#9;178&#9;-1&#9;true&#9;1&#9;false&#9;true&#9;109&#9;-1&#9;true&#9;2&#9;true&#9;true&#9;118&#9;-1&#9;true&#9;3&#9;true&#9;true&#9;47&#9;-1&#9;true&#9;4&#9;true&#9;true&#9;56&#9;-1&#9;true&#9;5&#9;true&#9;true&#9;43&#9;-1&#9;true&#9;6&#9;true&#9;true&#9;74&#9;-1&#9;true&#9;7&#9;true&#9;true&#9;61&#9;-1&#9;true"/>
+    <listAttribute key="debugger.view.VariableTreeView:USER_ADDED_FILE_STATICS"/>
+    <listAttribute key="debugger.view.VariableTreeView:USER_ADDED_GLOBALS"/>
     <booleanAttribute key="debugger.view.register.DrawAsHex" value="false"/>
+    <booleanAttribute key="debugger.view.variable.DrawAsHex" value="false"/>
     <stringAttribute key="dtsl_config" value="USBBlaster_DtslScript"/>
     <stringAttribute key="dtsl_config_script" value="CDB://../Arria V SoC/dtsl_config_script.py"/>
     <stringAttribute key="dtsl_options_file" value="default"/>
