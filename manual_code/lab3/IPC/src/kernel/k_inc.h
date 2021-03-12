@@ -58,8 +58,6 @@
  *===========================================================================
  */
 
-
-
 /**
  * @brief TCB data structure definition to support two kernel tasks.
  * @note  You will need to add more fields to this structure.
@@ -82,11 +80,11 @@ typedef struct tcb {
     struct timeval_rt   tv_wall;            /**> task execution wall clock time     */
     
     //fields for mailbox 
-    U32*                mb_buffer;         /* mailbox buffer */
-    U32*                mb_buffer_end;     /* end of mailbox buffer */
-    int               mb_capacity;       /* size of the mailbox */
-    MSG*          		mb_head;           /* pointer to head of mailbox */
-    MSG*          		mb_tail;           /* pointer to tial of mailbox */
+    U32                 *mb_buffer;         /* mailbox buffer address*/
+    U32                 *mb_buffer_end;     /* end of mailbox buffer address*/
+    U16                 mb_capacity;       /* size of the mailbox */ 
+    MSG                 *mb_head;           /* pointer to head of mailbox */
+    MSG                 *mb_tail;           /* pointer to tial of mailbox */
 
     /* The following only applies to real-time tasks */
     struct timeval_rt   p_n;                /**> period in seconds and microseconds */
