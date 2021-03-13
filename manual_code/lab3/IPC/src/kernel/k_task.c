@@ -65,6 +65,7 @@
 
 TCB             *gp_current_task = NULL;	// the current RUNNING task
 TCB             g_tcbs[MAX_TASKS];			// an array of TCBs
+TMB             t_mailbox[MAX_TASKS];
 RTX_TASK_INFO   g_null_task_info;			// The null task info
 U32             g_num_active_tasks = 0;		// number of non-dormant tasks
 U8              *uart_buffer;         // buffer for the command registration 
@@ -259,13 +260,14 @@ int k_tsk_init(RTX_TASK_INFO *task_info, int num_tasks)
     p_tcb->priv     = 1;
     p_tcb->tid      = TID_NULL;
     p_tcb->state    = RUNNING;
-    // initialize fields for mailbox stuff
     p_tcb-> num_msgs = 0; 
-    p_tcb-> mb_capacity = 0;
-    p_tcb-> mb_buffer = NULL;
-    p_tcb-> mb_buffer_end = NULL;
-    p_tcb-> mb_head = NULL; 
-    p_tcb-> mb_tail = NULL; 
+    // initialize fields for mailbox stuff
+    TMB *t_mb = &t_mailbox[0];
+    t_mb-> mb_capacity = 0;
+    t_mb-> mb_buffer = NULL;
+    t_mb-> mb_buffer_end = NULL;
+    t_mb-> mb_head = NULL; 
+    t_mb-> mb_tail = NULL;
     g_num_active_tasks++;
     gp_current_task = p_tcb;
     // update the schedule ready queue by adding the new task in the appropriate order
@@ -283,11 +285,12 @@ int k_tsk_init(RTX_TASK_INFO *task_info, int num_tasks)
     // create the rest of the tasks    
     p_taskinfo = task_info;
     for ( int i = 1; i <= num_tasks; i++ ) {
-    	printf("HELLO WORLD\n");
       // first check if the task is the kcd_task
       TCB *p_tcb_new = &g_tcbs[i];
+      TMB *t_mb_new = &t_mailbox[i];
       if (p_taskinfo-> ptask == kcd_task) {
         p_tcb_new = &g_tcbs[TID_KCD];
+        t_mb_new = &t_mailbox[TID_KCD];
       } else {
         // if the task is not the kcd_task, have to still reserve TID_KCD for the kcd_task
         if (i == TID_KCD) {
@@ -300,12 +303,11 @@ int k_tsk_init(RTX_TASK_INFO *task_info, int num_tasks)
       p_tcb_new-> next = NULL;
       p_tcb_new-> priv = p_taskinfo-> priv;
       p_tcb_new-> num_msgs = 0; 
-      p_tcb_new-> mb_capacity = 0; 
-      p_tcb_new-> mb_buffer = NULL;
-      p_tcb_new-> mb_buffer_end = NULL;
-      p_tcb_new-> mb_head = NULL; 
-      p_tcb_new-> mb_tail = NULL; 
-      printf("CHECKPOINT 2\n");
+      t_mb_new-> mb_capacity = 0; 
+      t_mb_new-> mb_buffer = NULL;
+      t_mb_new-> mb_buffer_end = NULL;
+      t_mb_new-> mb_head = NULL; 
+      t_mb_new-> mb_tail = NULL; 
       if (k_tsk_create_new(p_taskinfo, p_tcb_new, i) == RTX_OK) {
         // update the schedule ready queue by adding the new task in the appropriate order
         // the front of the queue is the highest prio task, which should be the current task
@@ -340,12 +342,10 @@ int k_tsk_create_new(RTX_TASK_INFO *p_taskinfo, TCB *p_tcb, task_t tid)
     extern U32 K_RESTORE;
 
     U32 *sp;
-    printf("CHECKOUTPOINT 3\N");
     if (p_tcb == NULL)
     {
         return RTX_ERR;
     }
-    printf("CHECKOUTPOINT 4\N");
     p_tcb ->tid = tid;
     p_tcb->state = READY;
 
@@ -417,7 +417,6 @@ int k_tsk_create_new(RTX_TASK_INFO *p_taskinfo, TCB *p_tcb, task_t tid)
         *(--sp) = 0x0;
     }
     p_tcb->msp = sp;
-    printf("RTX_OK RAN\n");
     return RTX_OK;
 }
 
@@ -581,12 +580,14 @@ int k_tsk_create(task_t *task, void (*task_entry)(void), U8 prio, U16 stack_size
     p_tcb->priv = 0;
     p_tcb->u_stack_size = stack_size;
     p_tcb->next = NULL;
-    p_tcb-> num_msgs = 0; 
-    p_tcb-> mb_capacity = 0;
-    p_tcb-> mb_buffer = NULL;
-    p_tcb-> mb_buffer_end = NULL;
-    p_tcb-> mb_head = NULL; 
-    p_tcb-> mb_tail = NULL; 
+    p_tcb-> num_msgs = 0;
+
+    TMB *t_mb = &t_mailbox[tid];
+    t_mb-> mb_capacity = 0;
+    t_mb-> mb_buffer = NULL;
+    t_mb-> mb_buffer_end = NULL;
+    t_mb-> mb_head = NULL; 
+    t_mb-> mb_tail = NULL; 
     // Call the k_tsk_create_new function to allocate kernel stack
     if (k_tsk_create_new(p_taskinfo, p_tcb, tid) == RTX_OK) {
       // add the task to the ready queue
@@ -613,13 +614,14 @@ void k_tsk_exit(void)
     //Check if current task is not NULL, and not the null task, and is RUNNING
     if (gp_current_task != NULL && gp_current_task->tid != TID_NULL && gp_current_task->state == RUNNING) {
       // deallocate the mailbox stuff
-      k_mem_dealloc(gp_current_task-> mb_buffer);
+      TMB *t_mb = &t_mailbox[gp_current_task->tid];
+      k_mem_dealloc(t_mb-> mb_buffer);
       gp_current_task-> num_msgs = 0; 
-      gp_current_task-> mb_capacity = 0; 
-      gp_current_task-> mb_buffer = NULL;
-      gp_current_task-> mb_buffer_end = NULL;
-      gp_current_task-> mb_head = NULL; 
-      gp_current_task-> mb_tail = NULL; 
+      t_mb-> mb_capacity = 0; 
+      t_mb-> mb_buffer = NULL;
+      t_mb-> mb_buffer_end = NULL;
+      t_mb-> mb_head = NULL; 
+      t_mb-> mb_tail = NULL; 
       // set the current task to null
       gp_current_task->state = DORMANT;
       // reduce the number of active tasks

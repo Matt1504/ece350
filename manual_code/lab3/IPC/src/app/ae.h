@@ -29,7 +29,6 @@
 #ifndef AE_
 #define AE_
 
-#include "ae_mailbox.h"
 #include "Serial.h"
 #include "printf.h"
 #include "rtx.h"
@@ -76,4 +75,3 @@ int  test_mem(void);
  *                             END OF FILE
  *===========================================================================
  */
-

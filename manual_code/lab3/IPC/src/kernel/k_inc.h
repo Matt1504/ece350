@@ -78,13 +78,6 @@ typedef struct tcb {
     task_t              tid;                /**> task ID                            */
     struct timeval_rt   tv_cpu;             /**> task execution cpu time            */
     struct timeval_rt   tv_wall;            /**> task execution wall clock time     */
-    
-    //fields for mailbox 
-    U32                 *mb_buffer;         /* mailbox buffer address*/
-    U32                 *mb_buffer_end;     /* end of mailbox buffer address*/
-    U16                 mb_capacity;       /* size of the mailbox */ 
-    MSG                 *mb_head;           /* pointer to head of mailbox */
-    MSG                 *mb_tail;           /* pointer to tial of mailbox */
 
     /* The following only applies to real-time tasks */
     struct timeval_rt   p_n;                /**> period in seconds and microseconds */
