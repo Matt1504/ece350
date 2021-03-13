@@ -132,7 +132,7 @@ int k_mem_init(void) {
     struct node_t* head = (struct node_t*) end_addr;
 
     head -> size = (RAM_END - end_addr) - sizeof(struct node_t);
-    printf("Size of the initial user stack allocation: %d\r\n", head->size);
+    //printf("Size of the initial user stack allocation: %d\r\n", head->size);
     head -> next = NULL;
     head -> prev = NULL;
     head -> allocated = 0;

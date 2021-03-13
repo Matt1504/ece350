@@ -74,7 +74,7 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     TCB *p_tcb = &g_tcbs[receiver_tid];
     // causes of failure 
     // receiver_tid does not exist or is dormant
-
+    printf("%d, %d, %d\n", p_tcb->state, p_tcb->tid, p_tcb->mb_buffer);
     if (receiver_tid >= MAX_TASKS || receiver_tid < 0 || p_tcb-> state == DORMANT) {
     	return -1; 
     }
@@ -135,13 +135,13 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     ++p_tcb-> num_msgs;
     p_tcb-> mb_head = msg_send; 
     // preempt the task based on priority ordering 
-    // check if receiver is blocked, changed to unblocked if it is 
+    // check if receiver is blocked, changed to unblocked if it is
     if (p_tcb-> state == BLK_MSG) {
     	p_tcb-> state = READY;
     	// when it was blocked, it was not placed back in the ready queue, so now have to add it back
     	queue_add(p_tcb);
     	// run to check for preemption
-    	k_tsk_run_new(); 
+    	k_tsk_yield();
     }
     return 0;
 }
@@ -166,6 +166,7 @@ int k_recv_msg(task_t *sender_tid, void *buf, size_t len) {
     if (gp_current_task-> num_msgs == 0) {
     	// set the state to be blocked
     	gp_current_task-> state = BLK_MSG; 
+    	printf("%d, %d\n", gp_current_task->tid, gp_current_task->state);
     	k_tsk_run_new(); 
     	return 0; 
     }

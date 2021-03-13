@@ -479,7 +479,9 @@ int k_tsk_run_new(void)
     // at this point, gp_current_task != NULL and p_tcb_old != NULL
     if (gp_current_task != p_tcb_old) {
         gp_current_task->state = RUNNING;   // change state of the to-be-switched-in  tcb
-        p_tcb_old->state = READY;           // change state of the to-be-switched-out tcb
+        if (p_tcb_old->state != BLK_MSG){
+            p_tcb_old->state = READY;           // change state of the to-be-switched-out tcb
+        }
         k_tsk_switch(p_tcb_old);            // switch stacks
     }
 
@@ -507,6 +509,7 @@ int k_tsk_yield(void)
     if (ready_queue-> front-> prio < ready_queue-> front-> next-> prio) {
       // the priority of the current running task is strictly higher than the next task
       // that means the current running task will continue to run
+    	printf("%d, %d\n", ready_queue->front->tid, ready_queue->front->prio);
     	if (gp_current_task != ready_queue-> front) {
     	    k_tsk_run_new();
     	}
@@ -652,7 +655,7 @@ int k_tsk_set_prio(task_t task_id, U8 prio)
     {
         return RTX_ERR;
     }
-    if (prio != PRIO_RT && prio != HIGH && prio != MEDIUM && prio != LOW && prio != LOWEST) {
+    if (prio != PRIO_RT && prio != HIGH && prio != MEDIUM && prio != LOW && prio != LOWEST && (prio < 0 || prio > 255)) {
       return RTX_ERR;
     }
     // cannot change the priority of a task to prio_null

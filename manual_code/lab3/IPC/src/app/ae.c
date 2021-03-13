@@ -116,12 +116,18 @@ void ae_set_task_info(RTX_TASK_INFO *tasks, int num_tasks) {
         tasks[i].mb_head = NULL;
         tasks[i].mb_tail = NULL;
     }
-    tasks[0].ptask = &receiver_task;
-//    tasks[1].ptask = &mailbox_task2;
-    tasks[1].ptask = &sender_task;
+    tasks[0].ptask = &mailbox_task1;
+
+    tasks[1].ptask = &send_task2;
     tasks[1].prio = MEDIUM;
-    tasks[1].priv = 0;
-    //printf("%d, %d\n", tasks[0].prio, tasks[1].prio);
+    tasks[2].ptask = &recv_task3;
+    tasks[2].prio = 105;
+    tasks[3].ptask = &send_task4;
+    tasks[3].prio = 106;
+    tasks[4].ptask = &recv_task5;
+    tasks[4].prio = 109;
+    tasks[5].ptask = &send_task6;
+    tasks[5].prio = 110;
     return;
 }
 

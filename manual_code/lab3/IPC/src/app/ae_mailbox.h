@@ -60,6 +60,11 @@ void mailbox_task1     (void);
 void mailbox_task2    (void);
 void receiver_task	(void);
 void sender_task (void);
+void send_task2 (void);
+void recv_task3 (void);
+void send_task4 (void);
+void recv_task5 (void);
+void send_task6 (void);
 
 #endif // ! PRIV_TASKS_H_
 /*

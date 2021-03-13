@@ -55,6 +55,7 @@ int k_rtx_init(RTX_TASK_INFO *task_info, int num_tasks)
         return RTX_ERR;
     }
     
+
     /* start the first task */
     //return k_tsk_start();
     return RTX_OK;
