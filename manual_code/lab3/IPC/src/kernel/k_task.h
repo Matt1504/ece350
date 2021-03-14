@@ -44,6 +44,8 @@
 
 #include "k_inc.h"
 #include "k_HAL_CA.h"
+#include "k_mem.h"
+#include "common_ext.h"
 
 /*
  *==========================================================================
@@ -52,6 +54,10 @@
  */
 
 extern TCB *gp_current_task;
+extern TCB g_tcbs[MAX_TASKS];
+extern TMB t_mailbox[MAX_TASKS];
+extern U8 *uart_buffer; 
+extern void kcd_task(void);
 
 /*
  *===========================================================================
@@ -81,5 +87,6 @@ int  k_tsk_get          (task_t task_id, RTX_TASK_INFO *buffer);
 int  k_tsk_create_rt    (task_t *tid, TASK_RT *task, RTX_MSG_HDR *msg_hdr, U32 num_msgs);
 void k_tsk_done_rt      (void);
 void k_tsk_suspend      (struct timeval_rt *tv);
+void queue_add			(TCB* t_block);
 
 #endif // ! K_TASK_H_

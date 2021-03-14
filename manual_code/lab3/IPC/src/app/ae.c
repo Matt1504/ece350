@@ -40,6 +40,7 @@
  *
  *****************************************************************************/
 
+
 #include "ae.h"
 
 /**************************************************************************//**
@@ -49,7 +50,6 @@
  * @param[out]	task_info boot-time tasks struct array AE writes to
  *
  *****************************************************************************/
-
 int ae_init(RTX_SYS_INFO *sys_info, RTX_TASK_INFO *task_info, int num_tasks) {
     if (ae_set_sys_info(sys_info) != RTX_OK) {
         return RTX_ERR;
@@ -108,12 +108,19 @@ void ae_set_task_info(RTX_TASK_INFO *tasks, int num_tasks) {
     for (int i = 0; i < num_tasks; i++ ) {
         tasks[i].u_stack_size = 0x0;
         tasks[i].prio = HIGH;
-        tasks[i].priv = 1;
+        tasks[i].priv = 0;
+        tasks[i].num_msgs = 0;
     }
-    tasks[0].ptask = &priv_task1;
-    tasks[1].ptask = &priv_task2;
-    tasks[2].ptask = &task2;
-    tasks[2].priv = 0;
+    tasks[0].ptask = &kcd_task;
+    tasks[1].ptask = &kcd_task_1;
+//    tasks[2].ptask = &recv_task3;
+//    tasks[2].prio = 105;
+//    tasks[3].ptask = &send_task4;
+//    tasks[3].prio = 106;
+//    tasks[4].ptask = &recv_task5;
+//    tasks[4].prio = 109;
+//    tasks[5].ptask = &send_task6;
+//    tasks[5].prio = 110;
     return;
 }
 

@@ -57,6 +57,7 @@ extern void __atomic_off(void);
 void task_null (void)
 {
     while (1) {
+    	printf("==============Task NULL===============\r\n");
 #ifdef DEBUG_0
         for ( int i = 0; i < 5; i++ ){
             printf("==============Task NULL===============\r\n");
@@ -69,7 +70,7 @@ void task_null (void)
 int main() 
 {    
     static RTX_SYS_INFO  sys_info;
-	static RTX_TASK_INFO task_info[3];
+	static RTX_TASK_INFO task_info[6];
     char mode = 0;
 
     // CMSIS system initialization
@@ -84,7 +85,7 @@ int main()
     printf("mode = 0x%x\r\n", mode);
 
     // System and Task set up by auto testing software
-    if (ae_init(&sys_info, task_info, 3) != RTX_OK) {
+    if (ae_init(&sys_info, task_info, 2) != RTX_OK) {
     	printf("RTX INIT FAILED\r\n");
     	return RTX_ERR;
     }
@@ -92,9 +93,8 @@ int main()
     // start the RTX and built-in tasks
     if (mode == MODE_SVC) {
         gp_current_task = NULL;
-        k_rtx_init(task_info, 3);
+        k_rtx_init(task_info, 2);
     }
-
 
     interrupt_init();
     task_null();

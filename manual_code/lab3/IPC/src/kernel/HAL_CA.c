@@ -238,6 +238,18 @@ void SER_Interrupt(void)
 	{
 	      char c = Rx_Read_Data();	// would also clear the interrupt if last character is read
 	      SER_PutChar(1, c);	// display back
+
+          size_t msg_hdr_size = sizeof(RTX_MSG_HDR);
+          U8 *buf = uart_buffer;
+
+          RTX_MSG_HDR *ptr = (void *)buf;
+          
+          ptr->length = msg_hdr_size + sizeof(char);
+          ptr->type = KEY_IN;
+          buf += msg_hdr_size;
+          *buf = c;
+          k_send_msg(TID_KCD, (void *)ptr);
+
 	}
   }
   else{                                 // unexpected interrupt type
