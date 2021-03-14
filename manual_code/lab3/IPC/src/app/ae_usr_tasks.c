@@ -39,7 +39,9 @@
 #include "rtx.h"
 #include "Serial.h"
 #include "printf.h"
+#include "k_task.h"
 
+extern TCB *gp_current_task;
 
 /**
  * @brief: a dummy task1
@@ -333,48 +335,29 @@ void send_task6(){
 
 void kcd_task_1() {
     SER_PutStr (0,"task2: entering \n\r");
-    /* do something */
-    long int x = 0;
-    int ret_val = 10;
-    int i = 0;
-    int j = 0;
-    for (i = 1;;i++) {
-            char out_char = 'a' + i%10;
-            for (j = 0; j < 5; j++ ) {
-                SER_PutChar(0,out_char);
-            }
-            SER_PutStr(0,"\n\r");
+	// create mailbox
+    task_t sender_id;
+    mbx_create(128);
 
-            for ( x = 0; x < 5000000; x++); // some artifical delay
-            if ( i%6 == 0 ) {
-                SER_PutStr(0,"usr_task2 before yielding cpu.\n\r");
-                ret_val = tsk_yield();
-                SER_PutStr(0,"usr_task2 after yielding cpu.\n\r");
-                printf("usr_task2: ret_val=%d\n\r", ret_val);
-            }
-        }
-	//    // create mailbox
-//    task_t sender_id;
-//    mbx_create(100);
-//
-//    U8 *buffer = (U8*) mem_alloc(sizeof(struct rtx_msg_hdr) + 1);
-//
-//    size_t msg_hdr_size = sizeof(struct rtx_msg_hdr);
-//    U8 *buf = buffer; /* buffer is allocated by the caller somewhere else
-//    */
-//    struct rtx_msg_hdr *ptr = (void *)buf;
-//    ptr->length = msg_hdr_size + 1;
-//    ptr->type = KCD_REG;
-//    buf += msg_hdr_size;
-//    *buf = 'a';
-//    send_msg(TID_KCD, (void *)ptr);
-//
-//    unsigned char *buffer2 = mem_alloc(100);
-//
-//    while(1) {
-//    	 printf("kcd_task_1\n");
-////        recv_msg(&sender_id, buffer2, 10);
-//    }
+    U8 *buffer = (U8*) mem_alloc(sizeof(struct rtx_msg_hdr) + 1);
+
+    size_t msg_hdr_size = sizeof(struct rtx_msg_hdr);
+    U8 *buf = buffer; /* buffer is allocated by the caller somewhere else
+    */
+    struct rtx_msg_hdr *ptr = (void *)buf;
+    ptr->length = msg_hdr_size + 1;
+    ptr->type = KCD_REG;
+    buf += msg_hdr_size;
+    *buf = 'a';
+    send_msg(TID_KCD, (void *)ptr);
+
+    unsigned char *buffer2 = mem_alloc(64 + sizeof(struct rtx_msg_hdr));
+
+    while(1) {
+		while(gp_current_task->num_msgs == 0);
+		int ret = recv_msg(&sender_id, buffer2, 64 + sizeof(struct rtx_msg_hdr));
+		printf("value: %d\n", ret);
+    }
 }
 
 /*

@@ -114,7 +114,7 @@ int k_mem_init(void) {
     printf("k_mem_init: image ends at 0x%x\r\n", end_addr);
     printf("k_mem_init: RAM ends at 0x%x\r\n", RAM_END);
     //printf("diff: %d\r\n", RAM_END - end_addr);
-    printf("size: %d\r\n", sizeof(struct node_t));
+    //printf("size: %d\r\n", sizeof(struct node_t));
 #endif /* DEBUG_0 */
     // sanity check (first have to check if free space is zero
     if (RAM_END - end_addr <= 0) {

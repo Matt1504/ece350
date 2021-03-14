@@ -78,7 +78,6 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     TMB *t_mb = &t_mailbox[receiver_tid];
     // causes of failure 
     // receiver_tid does not exist or is dormant
-    printf("%d, %d, %d\n", p_tcb->state, p_tcb->tid, t_mb->mb_buffer);
     if (receiver_tid >= MAX_TASKS || p_tcb-> state == DORMANT) {
     	return -1; 
     }
@@ -142,8 +141,7 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     for (int i = 0; i < header_msg-> length; i++) {
     	cdest[i] = csrc[i]; 
     }
-    struct rtx_msg_hdr *test = (struct rtx_msg_hdr*) cdest;
-    char *character = (char*) test + sizeof(struct rtx_msg_hdr);
+
     ++p_tcb-> num_msgs;
     t_mb-> mb_head = msg_send; 
     // preempt the task based on priority ordering 
@@ -180,7 +178,6 @@ int k_recv_msg(task_t *sender_tid, void *buf, size_t len) {
     if (gp_current_task-> num_msgs == 0) {
     	// set the state to be blocked
     	gp_current_task-> state = BLK_MSG; 
-    	printf("%d, %d\n", gp_current_task->tid, gp_current_task->state);
     	k_tsk_run_new(); 
     	return -1;
     }
@@ -210,12 +207,16 @@ int k_recv_msg(task_t *sender_tid, void *buf, size_t len) {
     	cdest[i] = csrc[i]; 
     }
 
-    struct rtx_msg_hdr *test = (struct rtx_msg_hdr*) cdest;
-    char *character = (char*) test + sizeof(struct rtx_msg_hdr);
     // message received, the number of messages is now reduced
     --gp_current_task-> num_msgs; 
 
     // move the tail pointer to the next message
+    if (gp_current_task->num_msgs == 0) {
+        t_mb-> mb_head = (MSG*) t_mb-> mb_buffer;
+        t_mb-> mb_tail = NULL;
+        t_mb-> mb_head-> next = NULL;
+        t_mb-> mb_tail-> next = NULL;
+    }
 
     return 0;
 }

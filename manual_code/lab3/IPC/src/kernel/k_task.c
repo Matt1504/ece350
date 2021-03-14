@@ -195,28 +195,14 @@ TCB *scheduler(void)
   // note that this scheduler will always be called after only 1 ITEM IN THE QUEUE HAS BEEN MODIFIED
   // either 1 task is removed, 1 task prio is changed
   TCB *t_comp = ready_queue-> front;
-//  TCB *prev = ready_queue-> front;
-//  if (t_comp-> state == DORMANT || t_comp-> state == BLK_MSG) {
-//    // the first task has exited or blocked, so all tasks are going to be bumped up
-//    ready_queue-> front = t_comp-> next;
-//    // return the new highest priority task in the queue
-//    return ready_queue-> front;
-//  }
-  while (t_comp-> next != NULL && (t_comp-> state != DORMANT || t_comp-> state != BLK_MSG)) {
-    // check if any have been modified
+
+  while (t_comp-> next != NULL) {
+    if (t_comp->state == READY || t_comp->state == RUNNING) {
+    	break;
+    }
+	  // check if any have been modified
     // set compare pointer to next task
     t_comp = t_comp-> next;
-
-//    // need to consider state (blocked state)
-//    if (prev->prio > t_comp->prio) {
-//      // the task in front has a lower priority, so I can essentially remove the node and reinsert it into its proper order
-//      prev-> next = t_comp-> next;
-//      queue_add(t_comp);
-//      // now that the task is added correctly, I can return the first item in the queue
-//      return ready_queue-> front;
-//    }
-//    // set prev pointer to next task
-//    prev = prev-> next;
   }
   // if we reach this, that means that the order of the tasks has not changed
   // can be because we change the priority of the task, but the queue maintains proper order
@@ -392,10 +378,12 @@ int k_tsk_create_new(RTX_TASK_INFO *p_taskinfo, TCB *p_tcb, task_t tid)
         //*** allocate user stack from the user space, not implemented yet ***//
         //********************************************************************//
 
-        U32 tmp = (U32) k_alloc_u_stack(tid, (size_t)p_tcb-> u_stack_size);
-        *(--sp) = tmp;
-        p_tcb->u_stack_hi = tmp;
-        p_tcb->u_sp = tmp;
+        *(--sp) = (U32) k_alloc_p_stack(tid);
+
+//        U32 tmp = (U32) k_alloc_u_stack(tid, (size_t)p_tcb-> u_stack_size);
+//        *(--sp) = tmp;
+//        p_tcb->u_stack_hi = tmp;
+//        p_tcb->u_sp = tmp;
 
 
         // uR12, uR11, ..., uR0
@@ -510,21 +498,34 @@ int k_tsk_yield(void)
     // if the priority of hgihest-priority task in teh ready queue, F, is STRICTLY less than that of E, then E continues
     // otherwise, F is scheduled and E is added to the back of the ready queue (last task among tasks with same priority)
 
+	  TCB *t_comp = ready_queue-> front-> next;
+
+	  while (t_comp-> next != NULL && (t_comp-> state != DORMANT || t_comp-> state != BLK_MSG)) {
+	    // check if any have been modified
+	    // set compare pointer to next task
+	    t_comp = t_comp-> next;
+	  }
+
     // at the beginning of the function, the front of the priority queue will be the running task
     // compare this task with the priority of the method after it
-    if (ready_queue-> front-> prio < ready_queue-> front-> next-> prio) {
+    if (gp_current_task-> prio < t_comp-> prio) {
       // the priority of the current running task is strictly higher than the next task
       // that means the current running task will continue to run
     	printf("%d, %d\n", ready_queue->front->tid, ready_queue->front->prio);
     	return RTX_OK;
     } else {
-      // the priority of the current running task is either of a priority equal to or less than the next task
-      // I can "delete" the task and re-add it to the back of the ready of the queue in order
-      TCB* tmp = ready_queue-> front;
-      ready_queue-> front = tmp-> next;
-      queue_add(tmp);
-      // the queue has been resorted via the "scheduler" since queue_add is a method of the scheduler technically
-      return k_tsk_run_new();
+    	// the priority of the current running task is either of a priority equal to or less than the next task
+    	// I can "delete" the task and re-add it to the back of the ready of the queue in order
+        TCB *p_tcb_old = gp_current_task;
+        gp_current_task = t_comp;
+
+		gp_current_task->state = RUNNING;   // change state of the to-be-switched-in  tcb
+		if (p_tcb_old->state != BLK_MSG){
+			p_tcb_old->state = READY;           // change state of the to-be-switched-out tcb
+		}
+		k_tsk_switch(p_tcb_old);            // switch stacks
+
+        return RTX_OK;
     }
 }
 
@@ -673,7 +674,21 @@ int k_tsk_set_prio(task_t task_id, U8 prio)
         return RTX_ERR;
     }
     //Change the task_id's priority from g_tcb to prio
+
     g_tcbs[task_id].prio = prio;
+    TCB *t_comp = ready_queue-> front;
+    TCB *t_prev = ready_queue-> front;
+
+    while (t_prev != NULL && t_comp != NULL) {
+    	t_comp = t_comp-> next;
+    	if (t_comp->tid == task_id) {
+    		t_prev->next = t_comp->next;
+    		queue_add(t_comp);
+    		break;
+    	}
+    	t_prev = t_prev->next;
+    }
+
     // have to rearrange the queue in case the priorities have changed
     // rearranged task mayb preempt the current task that called this function and run immediately
     k_tsk_run_new();

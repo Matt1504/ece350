@@ -1,5 +1,4 @@
 /* The KCD Task Template File */
-// hash table implementation from https://www.tutorialspoint.com/data_structures_algorithms/hash_table_program_in_c.htm
 #include "rtx.h"
 #include "Serial.h"
 #include "printf.h"
@@ -24,6 +23,14 @@ void kcd_task(void)
 
     void *ptr = mem_alloc(sizeof(RTX_MSG_HDR) + sizeof(char));
 
+
+    size_t msg_hdr_size = sizeof(struct rtx_msg_hdr);
+    U8 *buf = (char*) mem_alloc(64 + sizeof(struct rtx_msg_hdr));
+    struct rtx_msg_hdr *ptr2 = (void *)buf;
+    ptr2->length = 0;
+    ptr2->type = KCD_CMD;
+    buf += msg_hdr_size;
+
     while(1) {
     	task_t sender_tid = NULL;
 
@@ -46,15 +53,13 @@ void kcd_task(void)
 				if (str[0] != '%' || counter > 64) {
 					printf("Invalid Command\n");
 				} else {
-
-					char *string = (char*) mem_alloc((counter-1)*sizeof(char));
 					for (int i = 0; i < counter-1; i++) {
-						string[i] = str[i+1];
+						buf[i] = str[i+1];
 					}
 
 					task_t tid = MAX_TASKS;
 					for (int i = 0; i < MAX_TASKS; i++) {
-						if (hash_table[i] == string[1]) {
+						if (hash_table[i] == str[1]) {
 							tid = i;
 							break;
 						}
@@ -62,7 +67,9 @@ void kcd_task(void)
 					if (tid == MAX_TASKS) {
 						printf("Command cannot be processed\n");
 					}
-					send_msg(tid, (void *)string);
+
+					ptr2->length = counter-1 + sizeof(RTX_MSG_HDR);
+					send_msg(tid, (void *)ptr2);
 
 				}
 				counter = 0;
