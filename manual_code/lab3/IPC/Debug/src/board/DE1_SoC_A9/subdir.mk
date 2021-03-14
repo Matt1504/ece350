@@ -33,14 +33,14 @@ C_DEPS += \
 src/board/DE1_SoC_A9/%.o: ../src/board/DE1_SoC_A9/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: Arm C Compiler 5'
-	armcc.exe --cpu=Cortex-A9.no_neon.no_vfp --arm --apcs=/interwork -I"N:\ECE350\ece350_4\ece350\manual_code\lab3\IPC\src\app" -I"N:\ECE350\ece350_4\ece350\manual_code\lab3\IPC\src\board\DE1_SoC_A9" -I"N:\ECE350\ece350_4\ece350\manual_code\lab3\IPC\src\board\VE_A9" -I"N:\ECE350\ece350_4\ece350\manual_code\lab3\IPC\src\INC" -I"N:\ECE350\ece350_4\ece350\manual_code\lab3\IPC\src\kernel" --c99 -O0 -g --md --depend_format=unix_escaped --no_depend_system_headers --depend_dir="src/board/DE1_SoC_A9" -c -o "$@" "$<"
+	armcc.exe --cpu=Cortex-A9 --apcs=/hardfp --arm --apcs=/interwork -DDEBUG_0 -I"N:\ECE350\ece350\manual_code\lab3\IPC\src\app" -I"N:\ECE350\ece350\manual_code\lab3\IPC\src\board\DE1_SoC_A9" -I"N:\ECE350\ece350\manual_code\lab3\IPC\src\board\VE_A9" -I"N:\ECE350\ece350\manual_code\lab3\IPC\src\INC" -I"N:\ECE350\ece350\manual_code\lab3\IPC\src\kernel" --c99 -O0 -g --md --depend_format=unix_escaped --no_depend_system_headers --depend_dir="src/board/DE1_SoC_A9" -c -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
 src/board/DE1_SoC_A9/startup_a9.o: ../src/board/DE1_SoC_A9/startup_a9.s
 	@echo 'Building file: $<'
 	@echo 'Invoking: Arm Assembler 5'
-	armasm.exe --cpu=Cortex-A9.no_neon.no_vfp --arm --apcs=/interwork -g --md --depend_format=unix_escaped --depend="src/board/DE1_SoC_A9/startup_a9.d" -o "$@" "$<"
+	armasm.exe --cpu=Cortex-A9 --apcs=/hardfp --arm --apcs=/interwork -g --md --depend_format=unix_escaped --depend="src/board/DE1_SoC_A9/startup_a9.d" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

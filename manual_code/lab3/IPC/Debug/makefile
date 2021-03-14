@@ -46,10 +46,10 @@ endif
 all: IPC.axf
 
 # Tool invocations
-IPC.axf: $(OBJS) N:\ECE350\ece350_4\ece350\manual_code\lab3\IPC\scatter_DE1_SoC.sct $(USER_OBJS) $(LIBS)
+IPC.axf: $(OBJS) N:\ECE350\ece350\manual_code\lab3\IPC\scatter_DE1_SoC.sct $(USER_OBJS) $(LIBS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Arm Linker 5'
-	armlink.exe --cpu=Cortex-A9.no_neon.no_vfp --entry=__Vectors --scatter="N:\ECE350\ece350_4\ece350\manual_code\lab3\IPC\scatter_DE1_SoC.sct" --info=sizes -o "IPC.axf" $(OBJS) $(USER_OBJS) $(LIBS)
+	armlink.exe --cpu=Cortex-A9 --entry=__Vectors --scatter=""N:\ECE350\ece350\manual_code\lab3\IPC\scatter_DE1_SoC.sct"" --info=sizes -o "IPC.axf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

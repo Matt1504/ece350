@@ -45,6 +45,7 @@
 #include "k_inc.h"
 #include "k_HAL_CA.h"
 #include "k_mem.h"
+#include "common_ext.h"
 
 /*
  *==========================================================================

@@ -51,6 +51,7 @@ void recv_task3 (void);
 void send_task4 (void);
 void recv_task5 (void);
 void send_task6 (void);
+void kcd_task_1 (void);
 
 #endif // ! USR_TASK_H_
 

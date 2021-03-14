@@ -57,21 +57,7 @@
  *                             TYPEDEFS
  *===========================================================================
  */
-typedef struct msg {
-    // meta data for the kernel to navigate and monitor the ring buffer
-    struct msg *next;
-    task_t sender_id;
-    void *body;  /* the actual message (header + data)*/
-} MSG;
 
-typedef struct rtx_mailbox {
-    //fields for mailbox
-    unsigned int        *mb_buffer;         /* mailbox buffer */
-    unsigned int        *mb_buffer_end;     /* end of mailbox buffer */
-    int                 mb_capacity;       /* size of the mailbox */
-    struct msg          *mb_head;           /* pointer to head of mailbox */
-    struct msg          *mb_tail;           /* pointer to tial of mailbox */
-} TMB;
 
 /*
  *===========================================================================

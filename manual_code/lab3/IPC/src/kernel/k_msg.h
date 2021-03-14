@@ -10,6 +10,7 @@
 
 #include "k_rtx.h"
 #include "k_inc.h"
+#include "common_ext.h"
 
 int k_mbx_create(size_t size);
 int k_send_msg(task_t receiver_tid, const void *buf);

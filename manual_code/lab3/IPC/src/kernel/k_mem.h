@@ -42,6 +42,7 @@
 #ifndef K_MEM_H_
 #define K_MEM_H_
 #include "k_inc.h"
+#include "common_ext.h"
 
 /*
  * ------------------------------------------------------------------------

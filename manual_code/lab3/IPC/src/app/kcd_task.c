@@ -11,102 +11,69 @@ extern TCB *gp_current_task;
 char str[64];
 int counter = 0;
 
-struct DataItem  {
-   char 	key;   
-   task_t 	tid;
-};
-
-struct DataItem* hashArray[SIZE]; 
-struct DataItem* item;
-
-struct DataItem *search(char key) {
-   //get the hash
-   int hashIndex = 0;
-
-   //move in array until an empty
-   while(hashArray[hashIndex] != NULL) {
-      if(hashArray[hashIndex]->key == key)
-         return hashArray[hashIndex];
-      //go to next cell
-      ++hashIndex;
-
-      //wrap around the table
-      hashIndex %= SIZE;
-   }
-
-   return NULL;
-}
-
-void insert(char key, task_t tid) {
-
-	struct DataItem *item = (struct DataItem*) mem_alloc(sizeof(struct DataItem));
-	item->tid = tid;
-	item->key = key;
-
-	//get the hash
-	int hashIndex = 0;
-
-	//move in array until an empty or deleted cell OR key is the same
-	while(hashArray[hashIndex] != NULL && hashArray[hashIndex]->key != -1 && hashArray[hashIndex]->key != key) {
-		//go to next cell
-		++hashIndex;
-
-		//wrap around the table
-		hashIndex %= SIZE;
-	}
-
-	hashArray[hashIndex] = item;
-}
-
+char hash_table[MAX_TASKS];
 
 void kcd_task(void)
 {
 	// create mailbox for kcd task
     mbx_create(KCD_MBX_SIZE);
 
-    while(1) {
-    	task_t *sender_tid = NULL; 
-    	void *ptr = mem_alloc(sizeof(RTX_MSG_HDR) + sizeof(char));
-    	int res = recv_msg(sender_tid, ptr, sizeof(RTX_MSG_HDR)+sizeof(char));
-
-    	if (res == 0) {
-    		RTX_MSG_HDR *hdr = (RTX_MSG_HDR*) ptr;
-	    	size_t msg_hdr_size = sizeof(RTX_MSG_HDR);
-	    	// registering command 
-	    	if (hdr->type == KCD_REG) {
-	    		char *c = (char*)ptr + msg_hdr_size;
-	    		insert(*c, gp_current_task->tid);
-
-	    	// keyboard input
-	    	} else if (hdr->type == KEY_IN) {
-	    		char *c = (char*)ptr + msg_hdr_size;
-				if (*c == '\n' || *c == '\r') {
-					// ready to send the string
-					if (str[0] != '%' || counter > 64) {
-						SER_PutChar(1, 'I');
-					} else {
-
-						char *string = (char*) mem_alloc((counter-1)*sizeof(char));
-						for (int i = 0; i < counter-1; i++) {
-							string[i] = str[i+1];
-						}
-
-						task_t tid = search(string[0])->tid;
-						send_msg(tid, (void *)string);
-
-					}
-					counter = 0;
-
-	    		} else {
-	    			// recieving a character
-	    			str[counter] = *c;
-	    			++counter;
-	    		}
-	    	}
-    	}
-
+    for (int i = 0; i < MAX_TASKS; i++) {
+    	hash_table[i] = NULL;
     }
 
+    void *ptr = mem_alloc(sizeof(RTX_MSG_HDR) + sizeof(char));
+
+    while(1) {
+    	task_t sender_tid = NULL;
+
+    	if (recv_msg(&sender_tid, ptr, sizeof(RTX_MSG_HDR)+sizeof(char)) == -1){
+    		continue;
+    	}
+
+		RTX_MSG_HDR *hdr = (RTX_MSG_HDR*) ptr;
+		size_t msg_hdr_size = sizeof(RTX_MSG_HDR);
+		char *c = (char*)ptr + msg_hdr_size;
+
+		// registering command
+		if (hdr->type == KCD_REG) {
+			hash_table[sender_tid] = *c;
+
+		// keyboard input
+		} else if (hdr->type == KEY_IN) {
+			if (*c == '\n' || *c == '\r') {
+				// ready to send the string
+				if (str[0] != '%' || counter > 64) {
+					printf("Invalid Command\n");
+				} else {
+
+					char *string = (char*) mem_alloc((counter-1)*sizeof(char));
+					for (int i = 0; i < counter-1; i++) {
+						string[i] = str[i+1];
+					}
+
+					task_t tid = MAX_TASKS;
+					for (int i = 0; i < MAX_TASKS; i++) {
+						if (hash_table[i] == string[1]) {
+							tid = i;
+							break;
+						}
+					}
+					if (tid == MAX_TASKS) {
+						printf("Command cannot be processed\n");
+					}
+					send_msg(tid, (void *)string);
+
+				}
+				counter = 0;
+
+			} else {
+				// recieving a character
+				str[counter] = *c;
+				++counter;
+			}
+		}
+    }
 }
 
 //void main_task(){

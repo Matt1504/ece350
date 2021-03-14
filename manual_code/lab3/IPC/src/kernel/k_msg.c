@@ -13,7 +13,7 @@
 
 extern TCB *gp_current_task;
 extern TCB g_tcbs[MAX_TASKS];
-extern TMB t_mailbox[MAX_TASKS];
+//extern TMB t_mailbox[MAX_TASKS];
 
 int k_mbx_create(size_t size) {
 #ifdef DEBUG_0
@@ -52,10 +52,12 @@ int k_mbx_create(size_t size) {
     // otherwise the allocation works so can fill in the other field
     t_mb-> mb_capacity = size; 
     gp_current_task-> num_msgs = 0; 
-    t_mb-> mb_buffer_end = t_mb->mb_buffer + size;
+    U8 *tmp_mb_buffer = (U8 *)t_mb->mb_buffer + size;
+    t_mb-> mb_buffer_end = (unsigned int*)tmp_mb_buffer;
     t_mb-> mb_head = (MSG*) t_mb-> mb_buffer;
-    t_mb-> mb_tail = (MSG*) t_mb-> mb_buffer;
+    t_mb-> mb_tail = NULL;
     t_mb-> mb_head-> next = NULL; 
+    t_mb-> mb_tail-> next = NULL;
     return 0;
     // implement mailbox as a ring buffer
 }
@@ -77,7 +79,7 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     // causes of failure 
     // receiver_tid does not exist or is dormant
     printf("%d, %d, %d\n", p_tcb->state, p_tcb->tid, t_mb->mb_buffer);
-    if (receiver_tid >= MAX_TASKS || receiver_tid < 0 || p_tcb-> state == DORMANT) {
+    if (receiver_tid >= MAX_TASKS || p_tcb-> state == DORMANT) {
     	return -1; 
     }
     // receiver_tid does not have a mailbox 
@@ -108,13 +110,19 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     } else {
     	msg_send = t_mb-> mb_head->next;
     }
+
+
+    unsigned int temp = header_msg-> length + sizeof(MSG);
+    int padding = temp % 4 == 0 ? 0 : 4 - (temp % 4);
+    temp += padding;
+
     // check to see if free space from head to end of queue 
-    if (((unsigned int) msg_send) + header_msg-> length + sizeof(MSG) > (unsigned int) t_mb-> mb_buffer_end) {
+    if (((unsigned int) msg_send) + temp > (unsigned int) t_mb-> mb_buffer_end) {
     	// can't write without overflow, can only overwrite read messages at the beginning  (circle back)
     	// set msg_send to point at the start of the queue again (circle back)
     	msg_send = (MSG*)t_mb-> mb_buffer;
     	// check enough space between front of queue and tail 
-    	if (((unsigned int) msg_send) + header_msg-> length + sizeof(MSG) > (unsigned int) t_mb-> mb_tail) {
+    	if (((unsigned int) msg_send) + temp > (unsigned int) t_mb-> mb_tail) {
     		// not enough space
     		return -1; 
     	} else {
@@ -126,14 +134,16 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     // can set the meta data for the message
     msg_send-> sender_id = gp_current_task->tid; 
     // the next will point to the end of this message address
-    unsigned int endAddr = ((unsigned int) msg_send) + header_msg-> length + sizeof(MSG); 
+    unsigned int endAddr = ((unsigned int) msg_send) + temp;
     msg_send-> next = (MSG*) endAddr;
     // can just memcpy implementation copy from buf to mailbox tail 
-    unsigned char *csrc = (unsigned char*) buf;
-    unsigned char *cdest = (unsigned char*) msg_send-> body;
+    char *csrc = (char*) buf;
+    char *cdest = (char*) msg_send + sizeof(MSG);
     for (int i = 0; i < header_msg-> length; i++) {
     	cdest[i] = csrc[i]; 
     }
+    struct rtx_msg_hdr *test = (struct rtx_msg_hdr*) cdest;
+    char *character = (char*) test + sizeof(struct rtx_msg_hdr);
     ++p_tcb-> num_msgs;
     t_mb-> mb_head = msg_send; 
     // preempt the task based on priority ordering 
@@ -141,9 +151,10 @@ int k_send_msg(task_t receiver_tid, const void *buf) {
     if (p_tcb-> state == BLK_MSG) {
     	p_tcb-> state = READY;
     	// when it was blocked, it was not placed back in the ready queue, so now have to add it back
-    	queue_add(p_tcb);
+    	//queue_add(p_tcb);
+    	k_tsk_run_new();
     	// run to check for preemption
-    	k_tsk_yield();
+//    	k_tsk_yield();
     }
     return 0;
 }
@@ -171,29 +182,41 @@ int k_recv_msg(task_t *sender_tid, void *buf, size_t len) {
     	gp_current_task-> state = BLK_MSG; 
     	printf("%d, %d\n", gp_current_task->tid, gp_current_task->state);
     	k_tsk_run_new(); 
-    	return 0; 
+    	return -1;
     }
+
+    if (t_mb-> mb_tail-> next == NULL) {
+    	t_mb->mb_tail = (MSG*) t_mb->mb_buffer;
+    } else {
+    	t_mb->mb_tail = t_mb-> mb_tail->next;
+    }
+
     // can fail if the buffer is too small to hold the message
-    RTX_MSG_HDR *msg_head = (RTX_MSG_HDR*) t_mb-> mb_tail-> body;
+    RTX_MSG_HDR *msg_head = (RTX_MSG_HDR*) t_mb-> mb_tail + 1;
     if (msg_head-> length > len) {
     	return -1; 
     }
+
     if (sender_tid != NULL) {
     	// fill with sender task ID
     	*sender_tid = t_mb-> mb_tail->sender_id;
     }
     // fill the buf with the received message (memcpy same as in send)
-    unsigned char *csrc = (unsigned char*) t_mb-> mb_tail-> body;
-    unsigned char *cdest = (unsigned char*) buf; 
+    char *csrc = (char*) msg_head;
+    char *cdest = (char*) buf;
+
 
     for (int i = 0; i < msg_head->length; i++) {
     	cdest[i] = csrc[i]; 
     }
+
+    struct rtx_msg_hdr *test = (struct rtx_msg_hdr*) cdest;
+    char *character = (char*) test + sizeof(struct rtx_msg_hdr);
     // message received, the number of messages is now reduced
     --gp_current_task-> num_msgs; 
 
     // move the tail pointer to the next message
-    t_mb-> mb_tail = t_mb-> mb_tail-> next; 
+
     return 0;
 }
 

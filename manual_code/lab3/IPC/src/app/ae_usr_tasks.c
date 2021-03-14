@@ -125,10 +125,10 @@ void mailbox_task1() {
     void *buffer = mem_alloc(60);
     printf("TEST CASE 1: Mailbox Creation\n");
     // first try to receive a message before mailbox is created
-    if (recv_msg(&sender_id, &buffer, 5) == 0) {
-        printf("TEST CASE FAILED: recv_message passed before mailbox was created\n");
-        return;
-    }
+//    if (recv_msg(&sender_id, &buffer, 5) == 0) {
+//        printf("TEST CASE FAILED: recv_message passed before mailbox was created\n");
+//        return;
+//    }
 
     if (mbx_create(0) == 0){
         printf("TEST CASE FAILED: mailbox created of size 0\n");
@@ -146,7 +146,8 @@ void mailbox_task1() {
 
     printf("TEST CASE 1 PASSED\n");
     // also test blocking for no messages
-    int retVal = recv_msg(&sender_id, buffer, 5);
+    tsk_yield();
+//    int retVal = recv_msg(&sender_id, buffer, 5);
     // this should pass, but such that the state becomes blocked and k_tsk_run_new() will run so send_task2 will now run
 
     // when send_task2 yields after sending the message, this should run again
@@ -160,12 +161,12 @@ void mailbox_task1() {
         printf("sender id: %d\n", sender_id);
     }
 
-    // receive the second message 
-    if (recv_msg(&sender_id, buffer, 5) == -1) {
-        printf("TEST CASE FAILED: failed to receive second message in mailbox\n"); 
-        return; 
+    // receive the second message
+    if (recv_msg(&sender_id, buffer, 10) == -1) {
+        printf("TEST CASE FAILED: failed to receive second message in mailbox\n");
+        return;
     } else {
-        printf("sender id: %d\n", sender_id); 
+        printf("sender id: %d\n", sender_id);
     }
 
     tsk_yield();
@@ -211,9 +212,9 @@ void send_task2() {
     }
 
     // send the second message to the task 2
-    ptr-> length = 5; 
+    ptr-> length = 10;
     if (send_msg(1, (void*)ptr) == -1) {
-        printf("TEST CASE FAILED: second message could not be sent to mailbox\n"); 
+        printf("TEST CASE FAILED: second message could not be sent to mailbox\n");
     }
 //  // send the message again (should not be possible since there's not enough space)
 //  if (send_msg(1, (void*)ptr) == 0) {
@@ -222,7 +223,7 @@ void send_task2() {
 //  }
     printf("TEST CASE 2 PASSED\n");
 
-    k_tsk_yield();
+    tsk_yield();
 
     // when it gets to run again, the task 1 should have received the message, send the message again
     if (send_msg(1, (void*)ptr) == -1) {
@@ -294,7 +295,7 @@ void recv_task5(){
       printf("TEST CASE FAILED: mailbox was not created\n");
       return;
   }
-  k_tsk_set_prio(5, 111);
+  tsk_set_prio(5, 111);
   if (recv_msg(&sender_id, buffer, 200) == -1){
       printf("TEST CASE FAILED: receive is running with a null buffer\n");
   } else {
@@ -329,6 +330,53 @@ void send_task6(){
   mem_dealloc(buf);
   tsk_exit();
 }
+
+void kcd_task_1() {
+    SER_PutStr (0,"task2: entering \n\r");
+    /* do something */
+    long int x = 0;
+    int ret_val = 10;
+    int i = 0;
+    int j = 0;
+    for (i = 1;;i++) {
+            char out_char = 'a' + i%10;
+            for (j = 0; j < 5; j++ ) {
+                SER_PutChar(0,out_char);
+            }
+            SER_PutStr(0,"\n\r");
+
+            for ( x = 0; x < 5000000; x++); // some artifical delay
+            if ( i%6 == 0 ) {
+                SER_PutStr(0,"usr_task2 before yielding cpu.\n\r");
+                ret_val = tsk_yield();
+                SER_PutStr(0,"usr_task2 after yielding cpu.\n\r");
+                printf("usr_task2: ret_val=%d\n\r", ret_val);
+            }
+        }
+	//    // create mailbox
+//    task_t sender_id;
+//    mbx_create(100);
+//
+//    U8 *buffer = (U8*) mem_alloc(sizeof(struct rtx_msg_hdr) + 1);
+//
+//    size_t msg_hdr_size = sizeof(struct rtx_msg_hdr);
+//    U8 *buf = buffer; /* buffer is allocated by the caller somewhere else
+//    */
+//    struct rtx_msg_hdr *ptr = (void *)buf;
+//    ptr->length = msg_hdr_size + 1;
+//    ptr->type = KCD_REG;
+//    buf += msg_hdr_size;
+//    *buf = 'a';
+//    send_msg(TID_KCD, (void *)ptr);
+//
+//    unsigned char *buffer2 = mem_alloc(100);
+//
+//    while(1) {
+//    	 printf("kcd_task_1\n");
+////        recv_msg(&sender_id, buffer2, 10);
+//    }
+}
+
 /*
  *===========================================================================
  *                             END OF FILE

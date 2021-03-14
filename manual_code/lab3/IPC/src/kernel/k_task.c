@@ -195,32 +195,33 @@ TCB *scheduler(void)
   // note that this scheduler will always be called after only 1 ITEM IN THE QUEUE HAS BEEN MODIFIED
   // either 1 task is removed, 1 task prio is changed
   TCB *t_comp = ready_queue-> front;
-  TCB *prev = ready_queue-> front;
-  if (t_comp-> state == DORMANT || t_comp-> state == BLK_MSG) {
-    // the first task has exited or blocked, so all tasks are going to be bumped up
-    ready_queue-> front = t_comp-> next;
-    // return the new highest priority task in the queue
-    return ready_queue-> front;
-  }
-  while (prev != NULL && t_comp-> next != NULL) {
+//  TCB *prev = ready_queue-> front;
+//  if (t_comp-> state == DORMANT || t_comp-> state == BLK_MSG) {
+//    // the first task has exited or blocked, so all tasks are going to be bumped up
+//    ready_queue-> front = t_comp-> next;
+//    // return the new highest priority task in the queue
+//    return ready_queue-> front;
+//  }
+  while (t_comp-> next != NULL && (t_comp-> state != DORMANT || t_comp-> state != BLK_MSG)) {
     // check if any have been modified
     // set compare pointer to next task
     t_comp = t_comp-> next;
-    // need to consider state (blocked state)
-    if (prev->prio > t_comp->prio) {
-      // the task in front has a lower priority, so I can essentially remove the node and reinsert it into its proper order
-      prev-> next = t_comp-> next;
-      queue_add(t_comp);
-      // now that the task is added correctly, I can return the first item in the queue
-      return ready_queue-> front;
-    }
-    // set prev pointer to next task
-    prev = prev-> next;
+
+//    // need to consider state (blocked state)
+//    if (prev->prio > t_comp->prio) {
+//      // the task in front has a lower priority, so I can essentially remove the node and reinsert it into its proper order
+//      prev-> next = t_comp-> next;
+//      queue_add(t_comp);
+//      // now that the task is added correctly, I can return the first item in the queue
+//      return ready_queue-> front;
+//    }
+//    // set prev pointer to next task
+//    prev = prev-> next;
   }
   // if we reach this, that means that the order of the tasks has not changed
   // can be because we change the priority of the task, but the queue maintains proper order
   // simply return the front task of the queue
-  return ready_queue-> front;
+  return t_comp;
 }
 
 
@@ -308,7 +309,10 @@ int k_tsk_init(RTX_TASK_INFO *task_info, int num_tasks)
       t_mb_new-> mb_buffer_end = NULL;
       t_mb_new-> mb_head = NULL; 
       t_mb_new-> mb_tail = NULL; 
-      if (k_tsk_create_new(p_taskinfo, p_tcb_new, i) == RTX_OK) {
+
+      int tmp = p_taskinfo-> ptask == kcd_task ? TID_KCD : i;
+
+      if (k_tsk_create_new(p_taskinfo, p_tcb_new, tmp) == RTX_OK) {
         // update the schedule ready queue by adding the new task in the appropriate order
         // the front of the queue is the highest prio task, which should be the current task
         // add the task to the end of the queue
@@ -499,6 +503,9 @@ int k_tsk_run_new(void)
 int k_tsk_yield(void)
 {
 
+	if (gp_current_task != ready_queue-> front) {
+	    return k_tsk_run_new();
+	}
     // Example: running task E calls tsk_yield
     // if the priority of hgihest-priority task in teh ready queue, F, is STRICTLY less than that of E, then E continues
     // otherwise, F is scheduled and E is added to the back of the ready queue (last task among tasks with same priority)
@@ -509,9 +516,6 @@ int k_tsk_yield(void)
       // the priority of the current running task is strictly higher than the next task
       // that means the current running task will continue to run
     	printf("%d, %d\n", ready_queue->front->tid, ready_queue->front->prio);
-    	if (gp_current_task != ready_queue-> front) {
-    	    k_tsk_run_new();
-    	}
     	return RTX_OK;
     } else {
       // the priority of the current running task is either of a priority equal to or less than the next task
@@ -610,7 +614,6 @@ void k_tsk_exit(void)
 #ifdef DEBUG_0
     printf("k_tsk_exit: entering...\n\r");
 #endif /* DEBUG_0 */
-    TCB* ptr = gp_current_task;
     //Check if current task is not NULL, and not the null task, and is RUNNING
     if (gp_current_task != NULL && gp_current_task->tid != TID_NULL && gp_current_task->state == RUNNING) {
       // deallocate the mailbox stuff
@@ -657,7 +660,7 @@ int k_tsk_set_prio(task_t task_id, U8 prio)
     {
         return RTX_ERR;
     }
-    if (prio != PRIO_RT && prio != HIGH && prio != MEDIUM && prio != LOW && prio != LOWEST && (prio < 0 || prio > 255)) {
+    if (prio != PRIO_RT && prio != HIGH && prio != MEDIUM && prio != LOW && prio != LOWEST && prio > 255) {
       return RTX_ERR;
     }
     // cannot change the priority of a task to prio_null
